@@ -1,9 +1,1 @@
-PureMusic V4 - Google Drive folder picker
-
-Upload ALL files in this ZIP to the root of the GitHub repository, replacing the old files.
-
-Sign in to Google Drive, tap Chon thu muc Google Drive, expand Music, select it and choose Theo doi thu muc. Subfolders are scanned recursively and duplicate file IDs removed.
-
-Google OAuth Client ID remains saved in the browser localStorage. OAuth test-user access is still required. No secrets should be uploaded.
-
-Limitations: tokens are session-only, offline caching depends on Safari storage, Google Cast not supported by iPhone PWA.
+PureMusic V4.1 - OAuth/Google Drive folder scan fix. Upload index.html and v4.js to repository root, replacing existing files. Existing other assets remain unchanged. Google OAuth access token stays in sessionStorage, not permanently saved. OAuth PKCE state stored temporarily for redirect and removed on callback. Sign in again when session expires. Tested syntax only; not tested against private Drive.
