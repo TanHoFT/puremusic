@@ -10,3 +10,10 @@
 #pm6CoverSource{font-size:11px;color:#d1c4d1;text-align:center;margin-top:0;min-height:16px}#pm6Badge{font-size:10px;letter-spacing:.6px;color:#8ae5ed;margin-top:3px}
 @media(max-height:740px){.full-art-holder{padding:8px 0}.full-art{width:min(78vw,31vh)}#pm6Visualizer{height:42px}#pm6LyricsCard{margin-top:12px}.full-info{margin-bottom:5px}}
 @media(prefers-reduced-motion:reduce){.full-player.pm-playing .full-art{animation:none}}
+
+/* V7.1 refined cinematic layout */
+.full-player{background:linear-gradient(175deg,#33182f 0%,#130e18 51%,#07080c 100%)}
+.full-art-holder{padding:18px 0 19px}.full-art{width:min(100%,46vh,460px);max-height:46vh;border-radius:18px;box-shadow:0 30px 75px #000a,0 0 0 1px #ffffff19}
+.full-info h2{font-weight:780;line-height:1.18}.full-controls button{font-family:-apple-system,BlinkMacSystemFont,sans-serif}.full-controls .play-big{box-shadow:0 10px 32px #00d7e944}
+#pm6CoverSource{font-size:11px;letter-spacing:.2px;opacity:.72;text-align:center;margin-top:-8px;margin-bottom:8px}
+.pm7cover img{width:100%;height:100%;object-fit:cover;border-radius:inherit}

@@ -9,44 +9,55 @@ const card=document.createElement('section');card.id='pm6LyricsCard';card.innerH
 player.append(card);
 const full=document.createElement('section');full.id='pm6FullLyrics';full.innerHTML='<button id="pm6CloseLyrics">⌄ Đóng</button><h2>Lời bài hát</h2><div id="pm6LyricsScroll"></div>';document.body.append(full);
 el('pm6LyricsOpen').onclick=()=>{full.classList.add('open');renderLyrics(true)};el('pm6CloseLyrics').onclick=()=>full.classList.remove('open');
-const metaCache=new Map(),artCache=new Map(),lyricsCache=new Map();let activeKey='',lines=[],plain='',artObject=null,epoch=0;
-const key=s=>s.provider+':'+s.id;
+const metaCache=new Map(),artCache=new Map(),lyricsCache=new Map();
+const artOverrides=(()=>{try{return JSON.parse(localStorage.getItem('pm72_art')||'{}')}catch{return {}}})();let activeKey='',lines=[],plain='',artObject=null,epoch=0;
+const key=s=>s.provider+':'+s.id;window.pm6CoverCache=artCache;
 function cleanTitle(t){return (t||'').replace(/^\s*\d+[.\-_ ]+/,'').replace(/\s*[\[(](?:disco|remix|lossless|flac|320kbps|official audio|lyrics|dj mix|extended mix)[^\])]*[\])]/ig,'').replace(/\s+/g,' ').trim()}
 function utf8(a){return new TextDecoder('utf-8').decode(a)}
 function parseFlac(blob){return blob.slice(0,Math.min(blob.size,12*1024*1024)).arrayBuffer().then(buf=>{const d=new DataView(buf),u=new Uint8Array(buf);if(utf8(u.slice(0,4))!=='fLaC')return {};let p=4,out={},picture=null;const le=(pos)=>d.getUint32(pos,true);for(let n=0;n<40&&p+4<=u.length;n++){const head=u[p],last=!!(head&128),type=head&127,len=(u[p+1]<<16)|(u[p+2]<<8)|u[p+3];p+=4;if(p+len>u.length)break;if(type===4&&len>8){let o=p+4;const vendor=le(p);o+=vendor;if(o+4<=p+len){const count=Math.min(le(o),500);o+=4;for(let i=0;i<count&&o+4<=p+len;i++){let size=le(o);o+=4;if(size>200000||o+size>p+len)break;const entry=utf8(u.slice(o,o+size));o+=size;const at=entry.indexOf('=');if(at>0){const k=entry.slice(0,at).toUpperCase();if(['TITLE','ARTIST','ALBUM','ALBUMARTIST'].includes(k))out[k]=entry.slice(at+1)}}}}if(type===6&&len>32){let o=p;const be=()=>{const x=d.getUint32(o,false);o+=4;return x};try{be();let m=be();if(m>200||o+m>p+len)throw 0;const mime=utf8(u.slice(o,o+m));o+=m;let desc=be();o+=desc;o+=16;const size=be();if(size>0&&size<7*1024*1024&&o+size<=p+len&&mime.startsWith('image/'))picture=new Blob([u.slice(o,o+size)],{type:mime})}catch{}}p+=len;if(last)break}return {title:out.TITLE,artist:out.ARTIST||out.ALBUMARTIST,album:out.ALBUM,picture}})}
 async function folderArt(s){if(s.provider!=='google'||!tokens.google)return null;try{const r=await api('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(s.id)+'?fields=parents','google');const parent=r.parents?.[0];if(!parent)return null;const q=new URLSearchParams({q:`'${parent.replace(/'/g,"\\'")}' in parents and trashed = false`,fields:'files(id,name,mimeType),nextPageToken',pageSize:'100'});const list=await api('https://www.googleapis.com/drive/v3/files?'+q,'google');const f=(list.files||[]).find(x=>/^(cover|folder|front|album)\.(jpg|jpeg|png|webp)$/i.test(x.name));if(!f)return null;const img=await fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media',{headers:{Authorization:'Bearer '+tokens.google}});return img.ok?await img.blob():null}catch{return null}}
+async function musicBrainzCover(s){try{const title=cleanTitle(s.title||s.name||'');if(!title)return null;const term='recording:'+title+(s.artist&&s.artist!=='Nghệ sĩ chưa rõ'?' AND artist:'+s.artist:'');const r=await fetch('https://musicbrainz.org/ws/2/recording/?'+new URLSearchParams({query:term,fmt:'json',limit:'8'}),{headers:{Accept:'application/json'}});if(!r.ok)return null;const data=await r.json();const normalize=x=>(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');const match=(data.recordings||[]).find(x=>normalize(x.title)===normalize(title)&&x.releases?.length);if(!match)return null;const release=match.releases[0].id;const cover='https://coverartarchive.org/release/'+encodeURIComponent(release)+'/front-500';const check=await fetch(cover,{method:'GET'});if(!check.ok||!check.headers.get('content-type')?.startsWith('image/'))return null;return {src:URL.createObjectURL(await check.blob()),label:'Ảnh album MusicBrainz / Cover Art Archive'}}catch{return null}}
 async function onlineCover(s){
-  const title=cleanTitle(s.title||s.name||'');
-  if(!title)return null;
+  const title=cleanTitle(s.title||s.name||'');if(!title)return null;
   const norm=x=>(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
-  const target=norm(title), artist=s.artist&&s.artist!=='Nghệ sĩ chưa rõ'?norm(s.artist):'';
-  const queries=artist?[title+' '+s.artist,title]:[title];
-  for(const term of queries){
+  const target=norm(title),artist=s.artist&&!/^(nghệ sĩ chưa rõ|unknown artist)$/i.test(s.artist)?s.artist:'';
+  const queries=[artist?title+' '+artist:title,title];
+  // Apple Search is a public lookup; use a broader search if an exact result is absent.
+  for(const term of [...new Set(queries)]){
     try{
-      const q=new URLSearchParams({term,entity:'song',media:'music',limit:'50',country:'VN'});
-      const response=await fetch('https://itunes.apple.com/search?'+q,{cache:'force-cache'});
-      if(!response.ok)continue;
-      const data=await response.json();
-      const matches=(data.results||[]).filter(x=>norm(x.trackName)===target&&x.artworkUrl100);
-      if(!matches.length)continue;
-      matches.sort((a,b)=>{
-        const score=x=>artist?(norm(x.artistName)===artist?4:norm(x.artistName).includes(artist)?2:0):0;
-        return score(b)-score(a);
-      });
-      // With no artist metadata, the first exact-title result is an illustrative cover,
-      // not a verified match to the specific recording.
-      const match=artist?matches.find(x=>norm(x.artistName).includes(artist)):matches[0];
-      if(match)return {src:match.artworkUrl100.replace(/100x100bb/,'600x600bb'),label:artist?'Ảnh album trực tuyến':'Ảnh gợi ý theo tên bài (chưa xác minh ca sĩ)'};
-    }catch(e){console.warn('Cover lookup:',e)}
+      const q=new URLSearchParams({term,entity:'song',media:'music',limit:'100',country:'VN'});
+      const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),6500);
+      let response;try{response=await fetch('https://itunes.apple.com/search?'+q,{signal:controller.signal})}finally{clearTimeout(timer)}
+      if(!response.ok)continue;const data=await response.json();
+      const candidates=(data.results||[]).filter(x=>x.artworkUrl100&&x.trackName).map(x=>{
+        const nt=norm(x.trackName),na=norm(x.artistName),nartist=norm(artist);
+        let score=nt===target?100:(nt.includes(target)||target.includes(nt))?55:0;
+        if(artist&&na===nartist)score+=60;else if(artist&&na.includes(nartist))score+=25;
+        if(s.album&&s.album!=='Chưa phân loại'&&norm(x.collectionName)===norm(s.album))score+=30;
+        return {x,score};
+      }).filter(x=>x.score>=100).sort((a,b)=>b.score-a.score);
+      if(candidates.length){const hit=candidates[0].x;return {src:hit.artworkUrl100.replace(/100x100bb/,'600x600bb'),label:artist?'Ảnh tìm theo bài hát và nghệ sĩ':'Ảnh tham khảo theo tên bài (chưa xác minh)'};}
+    }catch(e){console.warn('Artwork search:',e)}
   }
   return null;
 }
+function generatedCover(s){
+  // An attractive, accurate-to-title fallback, never an unrelated photograph.
+  const name=cleanTitle(s.title||s.name||'Bài hát');const artist=s.artist==='Nghệ sĩ chưa rõ'?'PUREMUSIC':s.artist;
+  const hue=[...name].reduce((v,c)=>(v*31+c.charCodeAt(0))%360,29);
+  const escape=x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+  const lines=name.length>27?[name.slice(0,27).trim(),name.slice(27,54).trim()]:[name];
+  const title=lines.map((line,i)=>`<text x="65" y="${480+i*56}" fill="white" font-size="42" font-weight="750" font-family="Arial,sans-serif">${escape(line)}</text>`).join('');
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="720" height="720" viewBox="0 0 720 720"><defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="hsl(${hue},56%,36%)"/><stop offset="1" stop-color="hsl(${(hue+70)%360},52%,12%)"/></linearGradient><radialGradient id="r"><stop stop-color="#ffffff" stop-opacity=".23"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient></defs><rect width="720" height="720" fill="url(#g)"/><circle cx="560" cy="165" r="280" fill="url(#r)"/><circle cx="555" cy="230" r="180" fill="none" stroke="white" stroke-opacity=".18" stroke-width="3"/><circle cx="555" cy="230" r="120" fill="none" stroke="white" stroke-opacity=".14" stroke-width="3"/><circle cx="555" cy="230" r="55" fill="none" stroke="white" stroke-opacity=".12" stroke-width="3"/><path d="M0 620 Q180 550 360 610 T720 600" stroke="white" stroke-opacity=".16" stroke-width="3" fill="none"/><text x="65" y="88" fill="#ffffff" opacity=".7" font-size="22" letter-spacing="6" font-family="Arial">PUREMUSIC</text>${title}<text x="65" y="640" fill="#ffffff" opacity=".8" font-size="25" font-family="Arial">${escape(artist.slice(0,37))}</text></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
 async function coverFor(s,blob,tag,myEpoch){
-  const k=key(s);let src=null,label='';
+  const k=key(s);let src=null,label='';if(artOverrides[k]){src=artOverrides[k];label='Ảnh do người dùng chọn'}
   if(tag.picture){src=URL.createObjectURL(tag.picture);label='Ảnh bìa trong FLAC'}
   if(!src){const b=await folderArt(s);if(b){src=URL.createObjectURL(b);label='Ảnh từ thư mục Drive'}}
   if(!src){const result=await onlineCover(s);if(result){src=result.src;label=result.label}}
-  if(!src)return null;
+  if(!src){const mb=await musicBrainzCover(s);if(mb){src=mb.src;label=mb.label}}
+  if(!src){src=generatedCover(s);label='Bìa thiết kế theo tên bài hát';}
   const old=artCache.get(k);
   if(old?.src?.startsWith('blob:')&&old.src!==src)URL.revokeObjectURL(old.src);
   artCache.set(k,{src,label});
@@ -59,9 +70,10 @@ async function fetchLyrics(s,myEpoch){const k=key(s);if(lyricsCache.has(k)){if(e
 function setLyrics(v){lines=v.lines;plain=v.plain;renderLyrics(true)}
 function renderLyrics(force=false){const preview=el('pm6LyricsPreview'),scroll=el('pm6LyricsScroll');const time=media.currentTime||0;const i=lines.length?Math.max(0,lines.findLastIndex(x=>x.time<=time)):-1;const state=i+':'+lines.length+':'+(plain?1:0);if(!force&&renderLyrics.last===state)return;renderLyrics.last=state;preview.replaceChildren();scroll.replaceChildren();if(lines.length){for(let j=i;j<Math.min(lines.length,i+4);j++){const d=document.createElement('div');d.textContent=lines[j].text;d.className=j===i?'pm6-active':'pm6-dim';preview.append(d)}lines.forEach((l,j)=>{const d=document.createElement('div');d.textContent=l.text;d.className='pm6-line'+(j===i?' current':'');scroll.append(d)});if(full.classList.contains('open'))scroll.querySelector('.current')?.scrollIntoView({block:'center',behavior:'smooth'})}else{const d=document.createElement('div');d.className='pm6-placeholder';d.textContent=plain||'Chưa tìm thấy lời phù hợp. Nhạc remix hoặc file thiếu tên nghệ sĩ có thể không có lời đồng bộ.';preview.append(d);scroll.textContent=plain||'Chưa có lời bài hát.'}}
 async function enrich(s,myEpoch){let tag={};try{if(/\.flac$/i.test(s.name)){const blob=await getBlob(s);tag=await parseFlac(blob)}}catch{}if(epoch!==myEpoch)return;metaCache.set(key(s),tag);if(tag.title)s.title=tag.title;if(tag.artist)s.artist=tag.artist;if(tag.album)s.album=tag.album;el('fullTitle').textContent=s.title;el('fullArtist').textContent=s.artist;el('fullAlbum').textContent=s.album||'ĐANG PHÁT TỪ CLOUD';el('now').textContent=s.title+' · '+s.artist;el('miniArtist').textContent=s.artist;badge.textContent=/\.flac$/i.test(s.name)?'FLAC · CLOUD':'CLOUD AUDIO';render();await Promise.allSettled([coverFor(s,null,tag,myEpoch),fetchLyrics(s,myEpoch)])}
-const originalPlay=play;play=async function(i){const s=songs[i];if(!s)return;const e=++epoch;activeKey=key(s);lines=[];plain='';renderLyrics.last='';el('pm6LyricsPreview').textContent='Đang tìm lời bài hát…';el('fullArt').src=coverPlaceholder;el('miniArt').src=coverPlaceholder;coverSource.textContent='';player.style.setProperty('--pm-glow','#4a294d');const p=originalPlay(i);const cached=artCache.get(key(s));if(cached)showArt(cached.src,cached.label);else onlineCover(s).then(result=>{if(result&&e===epoch&&!artCache.has(key(s)))showArt(result.src,result.label)}).catch(()=>{});enrich(s,e).catch(err=>console.warn('Metadata:',err));await p};
+const originalPlay=play;play=async function(i){const s=songs[i];if(!s)return;const e=++epoch;activeKey=key(s);lines=[];plain='';renderLyrics.last='';el('pm6LyricsPreview').textContent='Đang tìm lời bài hát…';el('fullArt').src=coverPlaceholder;el('miniArt').src=coverPlaceholder;coverSource.textContent='';player.style.setProperty('--pm-glow','#4a294d');const p=originalPlay(i);const cached=artCache.get(key(s));if(cached)showArt(cached.src,cached.label);else showArt(generatedCover(s),'Bìa thiết kế theo tên bài hát');enrich(s,e).catch(err=>console.warn('Metadata:',err));await p};
 // Actual frequency-domain visualizer uses the shared Web Audio analyser created by Audio Lab.
 const canvas=visual,context=canvas.getContext('2d');let raf=0;function draw(){const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(devicePixelRatio||1,2);if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=w*dpr;canvas.height=h*dpr}context.setTransform(dpr,0,0,dpr,0,0);context.clearRect(0,0,w,h);const analyser=window.pm6Analyser;const live=analyser&&analyser.context.state==='running'&&!media.paused;const values=live?new Uint8Array(analyser.frequencyBinCount):null;if(values)analyser.getByteFrequencyData(values);const bars=54,gap=3,bw=(w-gap*(bars-1))/bars;for(let i=0;i<bars;i++){let amp=live?values[Math.min(values.length-1,Math.floor(Math.pow(i/bars,1.6)*values.length*.65))]/255:0.055;const bh=Math.max(3,amp*h*.91);const x=i*(bw+gap),y=(h-bh)/2;context.fillStyle=i<bars*(media.duration?media.currentTime/media.duration:0)?'#1be5ed':'rgba(244,241,248,.78)';context.beginPath();context.roundRect(x,y,bw,bh,bw/2);context.fill()}visual.classList.toggle('pm6-idle',!live);raf=requestAnimationFrame(draw)}
 function animate(){if(document.hidden||media.paused){cancelAnimationFrame(raf);raf=0;return;}if(!raf)draw()}animate();media.addEventListener('play',()=>{player.classList.add('pm-playing');animate()});media.addEventListener('pause',()=>{player.classList.remove('pm-playing');cancelAnimationFrame(raf);raf=0;});document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0;}else if(!media.paused)animate()});media.addEventListener('timeupdate',()=>renderLyrics());
 window.addEventListener('pagehide',()=>{cancelAnimationFrame(raf);raf=0});
+const artButton=document.createElement('button');artButton.id='pm72ChooseArt';artButton.textContent='✦ Đổi ảnh bìa';coverSource.after(artButton);artButton.onclick=async()=>{const s=songs[current];if(!s)return alert('Chọn bài hát trước.');const value=prompt('Dán đường dẫn HTTPS của ảnh JPG/PNG/WebP phù hợp với bài hát. Để trống để xóa ảnh tự chọn:',artOverrides[key(s)]||'');if(value===null)return;const v=value.trim();if(v&&!/^https:\/\//i.test(v))return alert('Vui lòng dùng đường dẫn ảnh HTTPS.');if(v)artOverrides[key(s)]=v;else delete artOverrides[key(s)];localStorage.setItem('pm72_art',JSON.stringify(artOverrides));artCache.delete(key(s));await coverFor(s,null,metaCache.get(key(s))||{},epoch)};
 })();
