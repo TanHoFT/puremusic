@@ -1,9 +1,9 @@
-# PureMusic V5 — Google Drive sign-in fix
+# PureMusic V6 — Cinematic Player
 
-Upload all five files to the root of GitHub repository `puremusic`, replacing existing files. Do not upload ZIP directly. The Google OAuth public Client ID is already configured. No client secret is included.
+Upload all 8 files to the root of the existing GitHub repository `TanHoFT/puremusic`, replacing files with the same names. Do not upload the ZIP itself. GitHub Pages will publish automatically.
 
-Google sign-in uses Google Identity Services token client (popup), not authorization-code exchange. Open https://tanhoft.github.io/puremusic/ in Safari, tap Google Drive, authorize, then Choose Google Drive Folder > Music > Follow Folder.
+New: cinematic fullscreen player, actual audio-frequency bars via Web Audio Analyser (when the AudioContext runs), FLAC Vorbis tags and embedded cover parsing, Google Drive `cover.jpg`/`folder.jpg` fallback, exact-match iTunes album art when metadata includes artist, LRCLIB synced/static lyrics, lyric preview and fullscreen synchronized lyrics, dynamic background from cover colors.
 
-The Google token expires and must be requested again. If Safari blocks the popup, retry directly in Safari rather than an embedded browser. The PWA cannot guarantee native FLAC decoding or Google Cast.
+Existing Google Drive login, folder selection, OneDrive, offline, and Audio Lab are preserved. Google OAuth tokens are not embedded in the ZIP. The Google OAuth Client ID is public and is preconfigured as in V5.
 
-The Microsoft OneDrive login remains unchanged and has not been independently tested. No cloud credentials are stored in the repository. Audio files remain in the user's Drive.
+Limitations: internet artwork and lyrics depend on external catalogs and metadata; remixes or files without artists may have no reliable match. Safari may restrict audio analysis, autoplay and FLAC playback. Frequency bars represent real audio only when Web Audio initializes; otherwise a low idle pattern appears. This release has passed JavaScript syntax checks but has not been end-to-end tested on an iPhone with the user's Drive.
