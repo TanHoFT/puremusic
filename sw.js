@@ -1,4 +1,4 @@
-const CACHE='puremusic-rebuild-11-0';
+const CACHE='puremusic-rebuild-11-1';
 const ASSETS=['./index.html','./manifest.webmanifest','./icon.svg','./icon-180.png','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(Promise.all([self.clients.claim(),caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('puremusic-')&&k!==CACHE).map(k=>caches.delete(k))))]))});
