@@ -1,5 +1,5 @@
-PureMusic 10.1.1 — Clean UI · by Ho Tan
+PureMusic V10.1.2 - Minimal Output Cleanup | by Ho Tan
 
-Gọn giao diện Audio Lab, bỏ thông báo kỹ thuật, nút ba chấm không có tác dụng và nút tải trùng trên Now Playing. Giữ engine, thư viện, offline, queue.
+Da xoa nut Dau ra am thanh va alert AirPlay khong hoat dong khoi Now Playing. Giu nguyen nut Loi bai hat va Hang cho, bo phat FLAC, offline, thu vien va Audio Lab.
 
-Lưu ý: Chưa kiểm thử Safari iOS trực tiếp.
+Upload tat ca 8 file vao thu muc goc GitHub Pages. Chua kiem thu thuc te tren Safari iPhone.
