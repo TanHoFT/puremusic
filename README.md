@@ -1,13 +1,15 @@
-# PureMusic V10.0.3 – Premium Icon
+# PureMusic V10.0.4 – Native-inspired Now Playing
 
-**by Ho Tan**
+by Ho Tan
 
-Cập nhật bộ icon Hi-Fi Premium dành cho màn hình chính iPhone và PWA. Kế thừa mã nguồn PureMusic V10.0.2 Modern Queue.
+- Rebuilt Now Playing layout for iPhone and Chrome Windows.
+- Square artwork centered, no duplicate title overlay, responsive controls.
+- Hidden non-functional spectrum in Direct mode and collapsed lyrics card.
+- Lyrics available from player action; family photos accessible via player menu.
+- Preserves Google Drive, OneDrive, playback, Audio Lab, library and queue.
 
-- `icon.svg`: biểu tượng vector.
-- `icon-180.png`: Apple Touch Icon.
-- `icon-192.png`, `icon-512.png`: PWA icons.
-- `manifest.webmanifest`: khai báo icon mới.
-- `sw.js`: phiên bản cache mới.
+## Deploy
+Upload all files to the root of GitHub Pages repository.
 
-Để thay icon trên iOS: triển khai lên GitHub Pages, xóa biểu tượng PureMusic cũ trên màn hình chính, mở lại Safari và chọn Chia sẻ → Thêm vào Màn hình chính. Không xóa dữ liệu trang web nếu muốn giữ thư viện đã lưu.
+## Notes
+The code passes JavaScript syntax validation, but actual iOS Safari and Chrome playback have not been verified. Do not claim bit-perfect output.
