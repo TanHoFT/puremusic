@@ -1,10 +1,15 @@
-# PureMusic V10.0.8 — Now Playing Layout Repair
+# PureMusic V10.0.9 – Clean Settings
+
 by Ho Tan
 
-- Canonical Now Playing layout, no overlaying legacy controls.
-- Cover, track metadata and playback controls in a single flow.
-- Output integration note: iOS Safari PWA cannot directly Cast to Google Home mini.
-- Optional Music Assistant remote-controller HTTPS shortcut in Settings (requires an independently configured home server).
-- Existing OAuth, playback, offline and queue code preserved.
+## Thay đổi
+- Loại bỏ thẻ giải thích gói Pro và các đoạn hướng dẫn kỹ thuật không cần thiết trong Cài đặt.
+- Giữ nút quản lý nhạc offline, nguồn nhạc, Audio Lab, Google Photos và Music Assistant.
+- Rút gọn các nhãn, giữ thông báo lỗi/trạng thái cần thiết.
+- Không thay đổi bộ phát FLAC, đăng nhập, offline hay hàng chờ.
 
-Important: Music Assistant integration here is a remote-controller shortcut, **not** native Google Cast support. Test on real iPhone before relying on this release.
+## Cập nhật
+Upload các file vào gốc repository GitHub Pages, ghi đè bản cũ.
+
+## Kiểm thử
+Chưa kiểm thử trực tiếp Safari iPhone.
