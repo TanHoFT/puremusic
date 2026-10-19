@@ -1,9 +1,7 @@
-# PureMusic V10.0.6 – Offline Queue Fix
+# PureMusic V10.0.7 — Now Playing Rebuild
 
 by Ho Tan
 
-- Menu ba chấm trong Hàng chờ: tải bài FLAC về offline hoặc xóa bản offline.
-- Thông báo tiến trình và lỗi tải ngay trên giao diện.
-- Thư viện Đã tải xuống và quản lý album/playlist giữ nguyên.
-- Nhạc lưu trong IndexedDB; iOS có thể thu hồi dữ liệu khi thiếu dung lượng.
-- Chưa kiểm thử thực tế trên iPhone; nên thử tải một bài và bật chế độ máy bay.
+Thay bố cục trình phát iPhone bằng một layout có giới hạn viewport, ảnh bìa vuông không chồng chữ, nhóm điều khiển rõ ràng. Các module phụ được ẩn khỏi màn hình chính nhưng giữ chức năng. Không thay đổi OAuth, phát FLAC hay offline.
+
+Chưa kiểm thử thực tế trên Safari iPhone.
