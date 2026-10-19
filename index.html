@@ -287,7 +287,30 @@ function renderLyrics(force=false){const preview=el('pm6LyricsPreview'),scroll=e
 async function enrich(s,myEpoch){let tag={};try{if(/\.flac$/i.test(s.name)){const blob=await getBlob(s);tag=await parseFlac(blob)}}catch{}if(epoch!==myEpoch)return;metaCache.set(key(s),tag);if(tag.title)s.title=tag.title;if(tag.artist)s.artist=tag.artist;if(tag.album)s.album=tag.album;el('fullTitle').textContent=s.title;el('fullArtist').textContent=s.artist;el('fullAlbum').textContent=s.album||'ĐANG PHÁT TỪ CLOUD';el('now').textContent=s.title+' · '+s.artist;el('miniArtist').textContent=s.artist;badge.textContent=/\.flac$/i.test(s.name)?'FLAC · CLOUD':'CLOUD AUDIO';render();await Promise.allSettled([coverFor(s,null,tag,myEpoch),fetchLyrics(s,myEpoch)])}
 const originalPlay=play;play=async function(i){const s=songs[i];if(!s)return;const e=++epoch;activeKey=key(s);lines=[];plain='';renderLyrics.last='';el('pm6LyricsPreview').textContent='Đang tìm lời bài hát…';el('fullArt').src=coverPlaceholder;el('miniArt').src=coverPlaceholder;coverSource.textContent='';player.style.setProperty('--pm-glow','#4a294d');const p=originalPlay(i);const cached=artCache.get(key(s));if(cached)showArt(cached.src,cached.label);else showArt(generatedCover(s),'Bìa thiết kế theo tên bài hát');enrich(s,e).catch(err=>console.warn('Metadata:',err));await p};
 // Actual frequency-domain visualizer uses the shared Web Audio analyser created by Audio Lab.
-const canvas=visual,context=canvas.getContext('2d');let raf=0;function draw(){const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(devicePixelRatio||1,2);if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=w*dpr;canvas.height=h*dpr}context.setTransform(dpr,0,0,dpr,0,0);context.clearRect(0,0,w,h);const analyser=window.pm6Analyser;const live=analyser&&analyser.context.state==='running'&&!media.paused;const values=live?new Uint8Array(analyser.frequencyBinCount):null;if(values)analyser.getByteFrequencyData(values);const bars=54,gap=3,bw=(w-gap*(bars-1))/bars;for(let i=0;i<bars;i++){let amp=live?values[Math.min(values.length-1,Math.floor(Math.pow(i/bars,1.6)*values.length*.65))]/255:0.055;const bh=Math.max(3,amp*h*.91);const x=i*(bw+gap),y=(h-bh)/2;context.fillStyle=i<bars*(media.duration?media.currentTime/media.duration:0)?'#1be5ed':'rgba(244,241,248,.78)';context.beginPath();context.roundRect(x,y,bw,bh,bw/2);context.fill()}visual.classList.toggle('pm6-idle',!live);raf=requestAnimationFrame(draw)}
+const canvas=visual,context=canvas.getContext('2d');let raf=0;
+const pm91Peaks=new Float32Array(64),pm91Levels=new Float32Array(64);
+let pm91Last=0,pm91Bins=null;
+function draw(now=0){
+ const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
+ if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr)}
+ context.setTransform(dpr,0,0,dpr,0,0);context.clearRect(0,0,w,h);
+ const analyser=window.pm6Analyser;
+ const live=!!(analyser&&analyser.context.state==='running'&&!media.paused&&!media.ended);
+ if(live){if(!pm91Bins||pm91Bins.length!==analyser.frequencyBinCount)pm91Bins=new Uint8Array(analyser.frequencyBinCount);analyser.getByteFrequencyData(pm91Bins)}
+ const bars=64,gap=Math.max(2,Math.min(4,w/200)),bw=Math.max(2,(w-gap*(bars-1))/bars),dt=Math.min(0.07,Math.max(0.016,(now-pm91Last)/1000||.016));pm91Last=now;
+ for(let i=0;i<bars;i++){
+  let amp=0;
+  if(live){const lo=Math.floor(Math.pow(i/bars,1.75)*pm91Bins.length*.85);const hi=Math.max(lo+1,Math.floor(Math.pow((i+1)/bars,1.75)*pm91Bins.length*.85));let sum=0;for(let j=lo;j<Math.min(hi,pm91Bins.length);j++)sum+=pm91Bins[j];amp=Math.min(1,(sum/Math.max(1,Math.min(hi,pm91Bins.length)-lo))/255*1.55)}
+  pm91Levels[i]+=((live?amp:0)-pm91Levels[i])*Math.min(1,dt*(amp>pm91Levels[i]?17:8));
+  pm91Peaks[i]=Math.max(pm91Levels[i],pm91Peaks[i]-dt*.65);
+  const bh=Math.max(2,pm91Levels[i]*h*.88),x=i*(bw+gap),y=(h-bh)/2;
+  context.fillStyle=i<bars*(media.duration?media.currentTime/media.duration:0)?'#16dbe8':'rgba(241,234,247,.84)';context.beginPath();context.roundRect(x,y,bw,bh,bw/2);context.fill();
+  if(live&&pm91Peaks[i]>.06){const py=(h-pm91Peaks[i]*h*.88)/2;context.fillStyle='rgba(255,255,255,.65)';context.fillRect(x,py,bw,1.5)}
+ }
+ visual.classList.toggle('pm6-idle',!live);
+ visual.title=live?'Phổ tần số thực từ Web Audio · 64 dải':'Không có dữ liệu phổ thực · iPhone Direct ưu tiên phát nền';
+ raf=requestAnimationFrame(draw)
+}
 function animate(){if(document.hidden||media.paused){cancelAnimationFrame(raf);raf=0;return;}if(!raf)draw()}animate();media.addEventListener('play',()=>{player.classList.add('pm-playing');animate()});media.addEventListener('pause',()=>{player.classList.remove('pm-playing');cancelAnimationFrame(raf);raf=0;});document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0;}else if(!media.paused)animate()});media.addEventListener('timeupdate',()=>renderLyrics());
 window.addEventListener('pagehide',()=>{cancelAnimationFrame(raf);raf=0});
 const artButton=document.createElement('button');artButton.id='pm72ChooseArt';artButton.textContent='✦ Đổi ảnh bìa';coverSource.after(artButton);artButton.onclick=async()=>{const s=songs[current];if(!s)return alert('Chọn bài hát trước.');const value=prompt('Dán đường dẫn HTTPS của ảnh JPG/PNG/WebP phù hợp với bài hát. Để trống để xóa ảnh tự chọn:',artOverrides[key(s)]||'');if(value===null)return;const v=value.trim();if(v&&!/^https:\/\//i.test(v))return alert('Vui lòng dùng đường dẫn ảnh HTTPS.');if(v)artOverrides[key(s)]=v;else delete artOverrides[key(s)];localStorage.setItem('pm72_art',JSON.stringify(artOverrides));artCache.delete(key(s));await coverFor(s,null,metaCache.get(key(s))||{},epoch)};
