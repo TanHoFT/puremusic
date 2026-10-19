@@ -1,9 +1,18 @@
-# PureMusic V9.0 – Hi-Fi Audio Lab
+# PureMusic V9.0.1 – Mini Player Navigation
 
-**by Ho Tan** · PWA · 19/10/2026
+**by Ho Tan** · Progressive Web App (PWA)
 
-Nâng cấp từ V8.9: ReplayGain từ tag FLAC (Track/Album), offset thủ công, hồ sơ tai nghe/loa, ước lượng headroom, Signal Path rõ trạng thái.
+## Cập nhật
+- Khi chưa chọn bài, nhấn thanh Đang phát hoặc mũi tên sẽ mở Thư viện và đưa đến mục Nghe gần đây (nếu có).
+- Khi đã chọn bài, nhấn thanh Đang phát vẫn mở trình phát lớn, kể cả khi đang tạm dừng.
+- Nút Play/Pause độc lập, không bị điều hướng nhầm.
+- Có hỗ trợ Enter/Space trên bàn phím Chrome Windows.
+- Nâng phiên bản Service Worker để cập nhật bản mới.
 
-**Quan trọng:** DSP bị bypass trên iPhone để ưu tiên phát nhạc nền. ReplayGain chỉ tác động âm thanh khi Web Audio DSP được bật trên nền tảng tương thích. Đây không phải phép đo LUFS/true peak hay xác minh bit-perfect.
+Giữ nguyên Google Drive, OneDrive, Audio Lab, Playlist, Hàng chờ, Lyrics và cơ chế phát nhạc hiện có.
 
-Cài đặt: tải toàn bộ 5 tệp lên thư mục gốc GitHub Pages. Giữ cấu hình OAuth cục bộ trong trình duyệt.
+## Cập nhật GitHub Pages
+Upload 5 file vào thư mục gốc repository `TanHoFT/puremusic`, ghi đè các file trùng tên và Commit.
+
+## Giới hạn
+Chưa kiểm thử trực tiếp với OAuth và Safari trên iPhone. Không thay đổi audio engine hoặc cơ chế phát FLAC.

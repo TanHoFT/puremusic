@@ -574,4 +574,36 @@ const signal=$('v3signal');if(signal){const panel=document.createElement('div');
 // Existing `applyAudio` executes in another closure; dispatch a click-free custom event, consumed there.
 audio.addEventListener('loadedmetadata',update);audio.addEventListener('play',update);$('v3Gain')?.addEventListener('input',update);setInterval(update,3000);update();
 })();
+</script><style id="pm901-empty-player-style">
+#miniWrap.pm901-empty{cursor:pointer}#miniWrap.pm901-empty:focus-visible{outline:2px solid #00d7e9;outline-offset:3px}
+#miniWrap.pm901-empty .mini-copy::after{content:'Nhấn để chọn nhạc trong Thư viện';display:block;color:#7ecdd4;font-size:11px;margin-top:3px}
+</style>
+<script id="pm901-empty-player-navigation">
+(()=>{'use strict';
+ const mini=document.getElementById('miniWrap');
+ const expand=document.getElementById('miniOpen');
+ const audioEl=document.getElementById('audio');
+ const libraryTab=document.querySelector('[data-v3nav="collection"]');
+ if(!mini||!libraryTab||!audioEl)return;
+ const hasTrack=()=>Number.isInteger(window.current)&&window.current>=0 ||
+   (typeof current!=='undefined'&&Number.isInteger(current)&&current>=0) ||
+   !!(audioEl.currentSrc||audioEl.getAttribute('src'));
+ function goToLibrary(){
+   libraryTab.click();
+   const collection=document.getElementById('v3collection');
+   if(collection)collection.scrollIntoView({block:'start',behavior:'smooth'});
+   const recentTitle=Array.from(document.querySelectorAll('#pm7app h2')).find(el=>el.textContent.trim()==='Nghe gần đây');
+   if(recentTitle&&document.querySelectorAll('#pm7app .pm7entry').length){
+     recentTitle.scrollIntoView({block:'nearest',behavior:'smooth'});
+   }
+ }
+ function update(){const empty=!hasTrack();mini.classList.toggle('pm901-empty',empty);mini.setAttribute('role','button');mini.setAttribute('tabindex','0');mini.setAttribute('aria-label',empty?'Mở Thư viện để chọn bài hát':'Mở trình phát nhạc');if(expand)expand.setAttribute('aria-label',empty?'Chọn bài hát trong Thư viện':'Mở trình phát');}
+ // Capture only the empty-player interaction. Once a track is selected,
+ // existing player open/pause/queue controls retain their own handlers.
+ mini.addEventListener('click',e=>{if(hasTrack()||e.target.closest('#miniPlay'))return;e.preventDefault();e.stopImmediatePropagation();goToLibrary();},{capture:true});
+ mini.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;if(!hasTrack()){e.preventDefault();goToLibrary();}else if(e.target===mini){e.preventDefault();document.getElementById('miniOpen')?.click();}});
+ for(const eventName of ['loadedmetadata','emptied','play','pause'])audioEl.addEventListener(eventName,update);
+ document.getElementById('library')?.addEventListener('click',()=>queueMicrotask(update));
+ update();
+})();
 </script></body></html>
