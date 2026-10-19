@@ -1,5 +1,5 @@
-PureMusic V10.1.3 - Minimal Output Cleanup | by Ho Tan
+PureMusic V10.1.4 - Queue Transport Fix - by Ho Tan
 
-Da xoa nut Dau ra am thanh va alert AirPlay khong hoat dong khoi Now Playing. Giu nguyen nut Loi bai hat va Hang cho, bo phat FLAC, offline, thu vien va Audio Lab.
+Sửa chọn bài trong hàng chờ, Phát ngay, Next/Previous, tự phát tiếp, đồng bộ vị trí hàng chờ. Giữ nguyên chức năng cloud, offline, Audio Lab.
 
-Upload tat ca 8 file vao thu muc goc GitHub Pages. Chua kiem thu thuc te tren Safari iPhone.
+Chưa kiểm thử thực tế trên Safari iPhone.

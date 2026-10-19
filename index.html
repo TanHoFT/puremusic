@@ -244,7 +244,7 @@ const liked=new Set(JSON.parse(localStorage.getItem('pm_likes')||'[]'));$('fullL
 <div class="v3card"><h3>Hồ sơ âm thanh</h3><p>Lưu preset EQ, gain, balance, mono và crossfeed ngay trên thiết bị.</p><div class="v3row"><button id="v3SavePreset">Lưu preset</button><button id="v3LoadPreset">Khôi phục</button></div></div>
 </section>
 <section class="view-v3" id="v3signal"><h1 class="v3title">Đường tín hiệu</h1><div class="v3signal"><div class="v3card"><b class="v3cyan">01 · NGUỒN</b><h3 id="v3Source">Chưa chọn bài hát</h3><p id="v3SourceMeta">Google Drive / OneDrive</p></div><div class="v3arrow">↓</div><div class="v3card"><b class="v3cyan">02 · GIẢI MÃ</b><h3>Safari / HTMLMediaElement</h3><p>Codec và độ phân giải giải mã không được trình duyệt cung cấp đầy đủ.</p></div><div class="v3arrow">↓</div><div class="v3card"><b class="v3cyan">03 · DSP</b><h3 id="v3DSPStatus">Tắt</h3><p id="v3DSPMeta">Đang phát trực tiếp qua phần tử audio.</p></div><div class="v3arrow">↓</div><div class="v3card"><b class="v3cyan">04 · ĐẦU RA</b><h3>iOS quản lý</h3><p>Bluetooth / AirPlay / loa iPhone: không thể xác định chính xác thiết bị hoặc codec bằng API web.</p></div></div><div class="v3warning">Không thể kết luận bit-perfect hoặc Lossless ở đầu ra chỉ dựa vào định dạng file. Nếu dùng Bluetooth A2DP, âm thanh thường bị mã hóa lại.</div><button id="v3BackLab">← Trở lại Audio Lab</button></section>
-<section class="view-v3" id="v3config"><h1 class="v3title">Cài đặt</h1><div class="v3card pm82-source-card"><div class="v3row"><div><h3>☁ Nguồn nhạc</h3><p>Google Drive · OneDrive · Thư mục đồng bộ</p></div><button id="pm82OpenSources" class="pm82-primary">Quản lý →</button></div><p class="v3tiny">Kết nối tài khoản, chọn thư mục Music và quét thư viện tại đây.</p></div><div class="v3card pm64about"><div class="pm64brand">♫</div><div><h3>PureMusic</h3><div class="pm64by">by Ho Tan</div></div></div><div class="v3card"><h3>Thông tin ứng dụng</h3><div class="v3setting v3row"><span>Phiên bản</span><b>10.1.3</b></div><div class="v3setting v3row"><span>Phát triển bởi</span><strong>Ho Tan</strong></div><div class="v3setting v3row"><span>Trang dự án</span><a href="https://github.com/TanHoFT/puremusic" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div></div><div class="v3card"><h3>Âm thanh</h3><div class="v3setting v3row"><span>Bộ xử lý âm thanh</span><span id="v3CfgDSP">Đang tắt</span></div><div class="v3setting v3row"><span>Đường tín hiệu</span><button id="v3ConfigSignal">Xem →</button></div></div><div class="v3card"><h3>Thư viện</h3><div class="v3setting v3row"><span>Quét lại Google Drive / OneDrive</span><button id="v3Rescan">Quét</button></div><div class="v3setting v3row"><span>Đăng nhập cloud</span><button id="v3CloudConfig">Cấu hình</button></div><div class="v3setting"><div class="v3row"><span>Tìm lời bài hát (LRCLIB)</span><button class="v3switch" id="v3LyricsToggle" aria-label="Tìm lời online" aria-pressed="false"></button></div></div><div class="v3setting"><h3>Lời bài hát hiện tại</h3><button id="v3FindLyrics">Tìm lời</button><p id="v3Lyrics">Chưa tìm lời.</p></div></div><div class="v3card"><h3>Bộ nhớ</h3><button id="v3ClearOffline">Xóa tất cả nhạc offline</button></div></section>
+<section class="view-v3" id="v3config"><h1 class="v3title">Cài đặt</h1><div class="v3card pm82-source-card"><div class="v3row"><div><h3>☁ Nguồn nhạc</h3><p>Google Drive · OneDrive · Thư mục đồng bộ</p></div><button id="pm82OpenSources" class="pm82-primary">Quản lý →</button></div><p class="v3tiny">Kết nối tài khoản, chọn thư mục Music và quét thư viện tại đây.</p></div><div class="v3card pm64about"><div class="pm64brand">♫</div><div><h3>PureMusic</h3><div class="pm64by">by Ho Tan</div></div></div><div class="v3card"><h3>Thông tin ứng dụng</h3><div class="v3setting v3row"><span>Phiên bản</span><b>10.1.4</b></div><div class="v3setting v3row"><span>Phát triển bởi</span><strong>Ho Tan</strong></div><div class="v3setting v3row"><span>Trang dự án</span><a href="https://github.com/TanHoFT/puremusic" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div></div><div class="v3card"><h3>Âm thanh</h3><div class="v3setting v3row"><span>Bộ xử lý âm thanh</span><span id="v3CfgDSP">Đang tắt</span></div><div class="v3setting v3row"><span>Đường tín hiệu</span><button id="v3ConfigSignal">Xem →</button></div></div><div class="v3card"><h3>Thư viện</h3><div class="v3setting v3row"><span>Quét lại Google Drive / OneDrive</span><button id="v3Rescan">Quét</button></div><div class="v3setting v3row"><span>Đăng nhập cloud</span><button id="v3CloudConfig">Cấu hình</button></div><div class="v3setting"><div class="v3row"><span>Tìm lời bài hát (LRCLIB)</span><button class="v3switch" id="v3LyricsToggle" aria-label="Tìm lời online" aria-pressed="false"></button></div></div><div class="v3setting"><h3>Lời bài hát hiện tại</h3><button id="v3FindLyrics">Tìm lời</button><p id="v3Lyrics">Chưa tìm lời.</p></div></div><div class="v3card"><h3>Bộ nhớ</h3><button id="v3ClearOffline">Xóa tất cả nhạc offline</button></div></section>
 <script id="v3script">
 (()=>{'use strict';const by=id=>document.getElementById(id);const defaults={dsp:false,mono:false,cross:false,crossMix:12,gain:0,pan:0,eq:[0,0,0,0,0,0,0,0,0,0],eqFreq:[31,62,125,250,500,1000,2000,4000,8000,16000],eqQ:[1,1,1,1,1,1,1,1,1,1],lyrics:false};let st={...defaults,...JSON.parse(localStorage.getItem('pm_v3')||'{}')};st.eq=Array.from({length:10},(_,i)=>Number(st.eq?.[i]||0));st.eqFreq=Array.from({length:10},(_,i)=>Number(st.eqFreq?.[i]||[31,62,125,250,500,1000,2000,4000,8000,16000][i]));st.eqQ=Array.from({length:10},(_,i)=>Number(st.eqQ?.[i]||1));const pmIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);if(pmIOS){st.dsp=false;localStorage.setItem('pm_v3',JSON.stringify(st));}let ctx,source,pre,filters=[],panner,split,merger,monoLeft,monoRight,crossLeft,crossRight,wet,dry,convolver,irBuffer;let activeView='library';const freq=[31,62,125,250,500,1000,2000,4000,8000,16000];function persist(){localStorage.setItem('pm_v3',JSON.stringify(st))}function toggle(el,on){el.classList.toggle('on',!!on);el.setAttribute('aria-pressed',String(!!on))}function show(view){activeView=view;document.querySelector('header').style.display=view==='library'?'':'none';document.querySelector('main').style.display=view==='library'?'':'none';document.querySelectorAll('.view-v3').forEach(x=>x.classList.toggle('active',x.id==='v3'+view));document.querySelectorAll('[data-v3nav]').forEach(b=>b.classList.toggle('active',b.dataset.v3nav===(view==='signal'?'lab':view)));if(view==='signal')updateSignal();scrollTo({top:0,behavior:'instant'})}document.querySelectorAll('[data-v3nav]').forEach(b=>b.onclick=()=>{show(b.dataset.v3nav);if(b.dataset.v3nav==='library')document.querySelector('[data-tab="songs"]').click()});by('v3ShowSignal').onclick=by('v3ConfigSignal').onclick=()=>show('signal');by('v3BackLab').onclick=()=>show('lab');by('v3CloudConfig').onclick=()=>{show('library');by('settings').open=true;by('settings').scrollIntoView()};by('v3Rescan').onclick=()=>{show('library');by('refresh').click()};
 function initAudio(){if(pmIOS&&!window.pm92IOSOptIn)return; if(ctx)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC){alert('Trình duyệt không hỗ trợ Web Audio.');return}try{ctx=new AC();source=ctx.createMediaElementSource(audio);pre=ctx.createGain();filters=freq.map((f,i)=>{const n=ctx.createBiquadFilter();n.type='peaking';n.frequency.value=st.eqFreq[i];n.Q.value=st.eqQ[i];n.gain.value=st.eq[i];return n});panner=ctx.createStereoPanner?ctx.createStereoPanner():null;split=ctx.createChannelSplitter(2);merger=ctx.createChannelMerger(2);monoLeft=ctx.createGain();monoRight=ctx.createGain();crossLeft=ctx.createGain();crossRight=ctx.createGain();dry=ctx.createGain();wet=ctx.createGain();convolver=ctx.createConvolver();const pm6A=ctx.createAnalyser();pm6A.fftSize=2048;pm6A.smoothingTimeConstant=.70;window.pm6Analyser=pm6A;source.connect(pm6A);pm6A.connect(pre);let prev=pre;filters.forEach(n=>{prev.connect(n);prev=n});if(panner){prev.connect(panner);prev=panner}prev.connect(split);split.connect(monoLeft,0);split.connect(monoRight,1);split.connect(crossLeft,0);split.connect(crossRight,1);monoLeft.connect(merger,0,0);monoRight.connect(merger,0,1);crossLeft.connect(merger,0,1);crossRight.connect(merger,0,0);merger.connect(dry);dry.connect(ctx.destination);merger.connect(convolver);convolver.connect(wet);wet.connect(ctx.destination);applyAudio();}catch(e){by('v3DSPStatus').textContent='Lỗi Web Audio: '+e.message;alert('Không khởi tạo được DSP: '+e.message)}}
@@ -387,7 +387,16 @@ function tile(v,name,sub,glyph){const b=btn('',()=>navigate(v),'pm7tile');b.data
 function sorted(arr){return [...arr].sort((a,b)=>sort==='artist'?a.artist.localeCompare(b.artist,'vi'):sort==='recent'?0:a.title.localeCompare(b.title,'vi'))}
 function enqueue(s){const k=key(s);if(!activeList.length){activeList=current>=0&&songs[current]?[key(songs[current])]:[];position=Math.max(0,activeList.length-1)}activeList.push(k);queueActive=true;pm88Save();showQueue()}
 function start(arr,random){const unique=[...new Map(arr.map(s=>[key(s),s])).values()];if(!unique.length){alert('Chưa có bài hát trong mục này.');return}if(random)for(let i=unique.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[unique[i],unique[j]]=[unique[j],unique[i]]}activeList=unique.map(key);position=0;queueActive=true;pm88Save();playKey(activeList[0])}
-function playKey(k){const i=songs.findIndex(s=>key(s)===k);if(i<0){alert('Bài hát không còn trong thư viện. Hãy quét lại nguồn nhạc.');return}const s=songs[i];recent=[k,...recent.filter(x=>x!==k)].slice(0,40);localStorage.setItem('pm7_recent',JSON.stringify(recent));pm88Save();play(i)}
+function playKey(k){
+ const i=songs.findIndex(s=>key(s)===k);
+ if(i<0){status('Bài hát không còn trong thư viện. Hãy quét lại nguồn nhạc.');return false;}
+ // Align queue pointer to the selected track before invoking the audio transport.
+ if(queueActive&&activeList.length){const idx=activeList.indexOf(k);if(idx>=0)position=idx;}
+ const s=songs[i];recent=[k,...recent.filter(x=>x!==k)].slice(0,40);
+ localStorage.setItem('pm7_recent',JSON.stringify(recent));pm88Save();
+ try{Promise.resolve(play(i)).catch(e=>status('Không phát được '+s.title+': '+e.message));return true;}
+ catch(e){status('Không phát được '+s.title+': '+e.message);return false;}
+}
 function controls(arr){const r=el('div','pm7bar');r.append(btn('▶  Phát tất cả',()=>start(arr,false)),btn('⤨  Ngẫu nhiên',()=>start(arr,true)));app.append(r)}
 function group(field){const groups=new Map();for(const s of list()){const n=(s[field]||'Chưa phân loại').trim()||'Chưa phân loại';if(!groups.has(n))groups.set(n,[]);groups.get(n).push(s)}return groups}
 function home(){header('Thư viện',`${all().length} bài hát · ${group('album').size} album · ${group('artist').size} nghệ sĩ`);searchBox();filteredButtons();const grid=el('div','pm7grid');grid.append(tile('albums','Album',group('album').size+' album','◉'),tile('artists','Nghệ sĩ',group('artist').size+' nghệ sĩ','♙'),tile('songs','Bài hát',all().length+' bài','♫'),tile('playlists','Danh sách phát',Object.keys(playlists).length+' playlist','▣'));app.append(grid);app.append(btn('▣  Duyệt thư mục   ›',()=>{document.querySelector('[data-v3nav="library"]')?.click();setTimeout(()=>document.getElementById('pm4open')?.click(),100)},'pm7folder'));section('Nghe gần đây',()=>navigate('songs'));const byId=new Map(list().map(s=>[key(s),s]));const latest=recent.map(k=>byId.get(k)).filter(Boolean);const items=latest.length?latest.slice(0,10):list().slice(0,10);if(!items.length)app.append(el('p','pm7empty','Chưa có nhạc. Vào Nguồn nhạc để kết nối và chọn thư mục.'));else items.forEach(s=>app.append(trackRow(s)))}
@@ -426,7 +435,7 @@ function showQueue(){
    const number=el('span','pm102Index',String(i+1));row.append(number);
    const artwork=cover(song);artwork.classList.add('pm102Artwork');row.append(artwork);
    const info=el('button','pm102Info');info.type='button';info.append(el('strong','',song.title),el('small','',song.artist||'Nghệ sĩ chưa rõ'));
-   info.setAttribute('aria-label','Phát '+song.title);info.onclick=()=>{if(activeList.length){position=i;queueActive=true;pm88Save()}playKey(k);showQueue()};row.append(info);
+   info.setAttribute('aria-label','Phát '+song.title);info.onclick=()=>{queueActive=!!activeList.length;position=i;pm88Save();playKey(k);showQueue()};artwork.style.cursor='pointer';artwork.addEventListener('click',()=>info.click());row.append(info);
    if(i===position){const state=el('span','pm102Playing','Đang phát');row.append(state)}
    if(activeList.length){
     const grip=el('button','pm102Grip');grip.type='button';grip.setAttribute('aria-label','Giữ và kéo để đổi thứ tự '+song.title);grip.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path fill="currentColor" d="M9 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm6 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9 10.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm6 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9 17a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm6 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>';
@@ -447,33 +456,38 @@ function move(i,step){const j=i+step;if(j<0||j>=activeList.length)return;[active
 function draw(keepFocus=false){const focus=keepFocus&&document.activeElement?.id==='pm7search';const caret=focus?document.activeElement.selectionStart:0;app.replaceChildren();if(view==='home')home();else if(view==='albums')groupsPage('album');else if(view==='artists')groupsPage('artist');else if(view==='album')detailPage('album');else if(view==='artist')detailPage('artist');else if(view==='songs')songsPage();else if(view==='playlists')playlistsPage();else if(view==='playlist')playlistPage();else if(view==='queue')queuePage();if(focus){const x=app.querySelector('input.pm7search');if(x){x.focus();x.setSelectionRange(caret,caret)}}}
 // Keep original full-screen player, cloud login and Audio Lab untouched.
 const originalRender=render;render=function(){originalRender();draw()};
-// V10.1.3: one authoritative transport controller for queue, Next/Previous and ended.
-// Older onended handlers were chained and sometimes prevented the queue from advancing.
-function pm1013Advance(delta,automatic=false){
-  if(queueActive&&activeList.length){
-    const nowKey=current>=0&&songs[current]?key(songs[current]):null;
-    if(nowKey&&activeList[position]!==nowKey){const found=activeList.indexOf(nowKey);if(found>=0)position=found;}
-    let next=position+delta;
-    if(next<0||next>=activeList.length){
-      if(repeatMode===1)next=(next+activeList.length)%activeList.length;
-      else {if(automatic){queueActive=false;pm88Save();}return false;}
-    }
-    const target=activeList[next];position=next;pm88Save();playKey(target);return true;
-  }
-  if(!songs.length)return false;
-  let next=shuffle?Math.floor(Math.random()*songs.length):current+delta;
-  if(next<0||next>=songs.length){if(repeatMode===1)next=(next+songs.length)%songs.length;else return false;}
-  play(next);return true;
+// V10.1.4: shared queue transport for row tap, Play Now, Next and ended.
+// A queue transition MUST select a real song key and call the same playKey path.
+function pm1014Advance(delta,automatic=false){
+ if(repeatMode===2&&automatic){audio.currentTime=0;audio.play().catch(e=>status('Không thể phát lại: '+e.message));return true;}
+ if(queueActive&&activeList.length){
+   const actual=current>=0&&songs[current]?key(songs[current]):null;
+   if(actual){const at=activeList.indexOf(actual);if(at>=0)position=at;}
+   let next=position+delta;
+   if(next<0||next>=activeList.length){
+     if(repeatMode===1)next=(next+activeList.length)%activeList.length;
+     else return false;
+   }
+   position=next;pm88Save();
+   const ok=playKey(activeList[next]);
+   if(queueSheet.classList.contains('open'))showQueue();
+   return ok;
+ }
+ if(!songs.length)return false;
+ let next=shuffle?Math.floor(Math.random()*songs.length):current+delta;
+ if(next<0||next>=songs.length){
+   if(repeatMode===1)next=(next+songs.length)%songs.length;
+   else return false;
+ }
+ const target=songs[next];return playKey(key(target));
 }
-audio.onended=()=>{
-  if(repeatMode===2){audio.currentTime=0;audio.play().catch(()=>{});return;}
-  pm1013Advance(1,true);
-};
-// Replace older transport handlers instead of layering another capture listener.
+audio.onended=()=>{pm1014Advance(1,true)};
 for(const [id,delta] of [['prev',-1],['next',1]]){
-  const old=$(id),fresh=old.cloneNode(true);old.parentNode.replaceChild(fresh,old);
-  fresh.onclick=()=>pm1013Advance(delta,false);
+ const control=$(id);control.onclick=()=>pm1014Advance(delta,false);
 }
+// Full-screen controls dispatch to the same two transport buttons.
+$('fullPrev').onclick=()=>pm1014Advance(-1,false);
+$('fullNext').onclick=()=>pm1014Advance(1,false);
 // V8.9: restore queue metadata and listening position without automatically playing on page load.
 const pm88ResumeBar=document.createElement('div');pm88ResumeBar.id='pm88ResumeBar';pm88ResumeBar.style.cssText='display:none;position:fixed;z-index:7000;left:12px;right:12px;bottom:165px;background:#18262b;border:1px solid #28636a;border-radius:15px;padding:13px;color:#eaffff;box-shadow:0 12px 30px #0008';document.body.append(pm88ResumeBar);
 function pm88OfferResume(){if(!pm88PendingResume||!pm88KeyPresent(pm88PendingResume.key))return;const s=songs.find(x=>x.provider+':'+x.id===pm88PendingResume.key);if(!s)return;pm88ResumeBar.replaceChildren();const title=document.createElement('div');title.textContent='Tiếp tục nghe: '+s.title+' · '+Math.floor((pm88PendingResume.time||0)/60)+':'+String(Math.floor((pm88PendingResume.time||0)%60)).padStart(2,'0');title.style.marginBottom='8px';const yes=document.createElement('button');yes.textContent='▶ Tiếp tục';yes.style.cssText='background:#00d7e9;color:#04232a;margin-right:8px';yes.onclick=()=>{const t=pm88PendingResume.time||0;pm88PendingResume=null;pm88ResumeBar.style.display='none';playKey(s.provider+':'+s.id);const onmeta=()=>{if(Number.isFinite(audio.duration))audio.currentTime=Math.min(t,Math.max(0,audio.duration-1));audio.removeEventListener('loadedmetadata',onmeta)};audio.addEventListener('loadedmetadata',onmeta);if(audio.readyState>=1)onmeta()};const no=document.createElement('button');no.textContent='Để sau';no.onclick=()=>{pm88ResumeBar.style.display='none';pm88PendingResume=null};pm88ResumeBar.append(title,yes,no);pm88ResumeBar.style.display='block'}
