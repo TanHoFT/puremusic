@@ -1,10 +1,16 @@
-# PureMusic V9.1 – Real Spectrum
+# PureMusic V9.2 – Adaptive Audio Visualizer
 
-**by Ho Tan**
+**by Ho Tan** · PWA · Google Drive / OneDrive
 
-- Trên Chrome Windows: visualizer 64 dải FFT thực lấy từ Web Audio AnalyserNode, peak hold và làm mượt theo thời gian.
-- Khi không có dữ liệu FFT, cột về trạng thái nghỉ, không giả lập là tín hiệu thực.
-- iPhone giữ Direct Playback để ưu tiên phát nền; không bật Web Audio chỉ vì hiệu ứng.
-- Giữ Google Drive, OneDrive, hàng chờ, Lyrics, Audio Lab, Hi-Fi.
+## Thay đổi
+- FFT thực 32/64/128 dải qua Web Audio AnalyserNode; không mô phỏng âm lượng.
+- Chrome Windows: có thể kích hoạt phân tích âm thanh trong Audio Lab.
+- iPhone: mặc định Direct để ưu tiên phát nền; có nút bật Spectrum thật kèm cảnh báo.
+- Trạng thái minh bạch khi không có dữ liệu FFT.
+- Giữ thư viện, cloud, hàng chờ, ReplayGain, EQ và các chức năng V9.1.
 
-Lưu ý: Chỉ đo tín hiệu trong đường Web Audio, không phải phép đo DAC hoặc loa. Kiểm thử trên Chrome Windows và Safari iPhone trước khi sử dụng rộng rãi.
+## Giới hạn
+Safari iOS có thể dừng phát nền khi sử dụng Web Audio. Trở về Direct cần tải lại trang. FFT đo tín hiệu trong graph, không đo mức âm lượng thực tế ở loa/Bluetooth.
+
+## Triển khai
+Upload 5 file vào thư mục gốc GitHub Pages và Commit. Kiểm thử trên Chrome Windows và Safari iPhone.

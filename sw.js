@@ -1,4 +1,4 @@
-const CACHE='puremusic-v9-1-spectrum-20261019';
+const CACHE='puremusic-v9-2-adaptive-20261019';
 const ASSETS=['./index.html','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener('activate',e=>e.waitUntil(Promise.all([self.clients.claim(),caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))])));
