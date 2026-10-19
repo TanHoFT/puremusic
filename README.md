@@ -1,11 +1,13 @@
-# PureMusic V10.0.2 - Modern Queue
+# PureMusic V10.0.3 – Premium Icon
 
 **by Ho Tan**
 
-- Hàng chờ có giao diện mới: ảnh bìa, tên bài, ca sĩ và bài đang phát.
-- Kéo tay nắm 6 chấm để thay đổi thứ tự trên máy tính hoặc màn hình cảm ứng.
-- Menu từng bài: phát ngay, phát tiếp, lên đầu, xuống cuối, xóa.
-- Giữ lưu hàng chờ thành playlist và xóa các bài sắp phát.
-- Giữ các tính năng V10.0.1: Google Drive, OneDrive, Audio Lab, trình phát và mini-player.
+Cập nhật bộ icon Hi-Fi Premium dành cho màn hình chính iPhone và PWA. Kế thừa mã nguồn PureMusic V10.0.2 Modern Queue.
 
-Chưa kiểm thử tương tác trực tiếp trên Safari iPhone.
+- `icon.svg`: biểu tượng vector.
+- `icon-180.png`: Apple Touch Icon.
+- `icon-192.png`, `icon-512.png`: PWA icons.
+- `manifest.webmanifest`: khai báo icon mới.
+- `sw.js`: phiên bản cache mới.
+
+Để thay icon trên iOS: triển khai lên GitHub Pages, xóa biểu tượng PureMusic cũ trên màn hình chính, mở lại Safari và chọn Chia sẻ → Thêm vào Màn hình chính. Không xóa dữ liệu trang web nếu muốn giữ thư viện đã lưu.
