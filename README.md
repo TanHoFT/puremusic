@@ -1,7 +1,5 @@
-# PureMusic 10.1.0 — Minimal
+PureMusic 10.1.1 — Clean UI · by Ho Tan
 
-by Ho Tan
+Gọn giao diện Audio Lab, bỏ thông báo kỹ thuật, nút ba chấm không có tác dụng và nút tải trùng trên Now Playing. Giữ engine, thư viện, offline, queue.
 
-Giao diện Cài đặt tối giản. Đã loại bỏ Google Photos, ảnh gia đình, thao tác đổi ảnh thủ công và các bảng chẩn đoán phiên bản cũ khỏi giao diện. Ảnh bìa nhúng trong tệp vẫn được sử dụng. Giữ nguyên chức năng phát nhạc, cloud, offline, hàng chờ và Audio Lab.
-
-Lưu ý: Chưa kiểm thử trực tiếp trên iPhone.
+Lưu ý: Chưa kiểm thử Safari iOS trực tiếp.
