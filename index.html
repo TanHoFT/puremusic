@@ -660,9 +660,41 @@ header{background:none!important}main,#v3collection,.view-v3{background:var(--pm
 </style><script id="pm10-version-and-a11y">(()=>{'use strict';
  document.title='PureMusic · by Ho Tan';
  const versionLabels=Array.from(document.querySelectorAll('#v3config .v3setting')).filter(x=>/Phiên bản/.test(x.textContent));
- versionLabels.forEach(x=>{const b=x.querySelector('b');if(b)b.textContent='10.0.0'});
+ versionLabels.forEach(x=>{const b=x.querySelector('b');if(b)b.textContent='10.0.1'});
  const player=document.getElementById('fullPlayer');if(player){player.setAttribute('role','dialog');player.setAttribute('aria-modal','true');player.setAttribute('aria-label','Trình phát nhạc');}
  const nav=document.querySelector('.nav-v3');if(nav){nav.setAttribute('aria-label','Điều hướng chính');}
  document.querySelectorAll('.nav-v3 button').forEach(b=>b.setAttribute('type','button'));
  const art=document.getElementById('fullArt');if(art)art.alt='Ảnh bìa bài hát đang phát';
+})();</script><style id="pm1001-empty-mini-style">
+/* Mini-player exists only after a track is selected; no reserved blank space. */
+body.pm-no-track .player{display:none!important}
+body.pm-no-track main{padding-bottom:105px!important}
+body.pm-no-track #v3collection{padding-bottom:105px!important}
+body.pm-no-track .view-v3.active{padding-bottom:105px!important}
+@media(min-width:850px){body.pm-no-track #v3collection,body.pm-no-track .view-v3.active{padding-bottom:105px!important}}
+</style>
+<script id="pm1001-empty-mini-behavior">(()=>{'use strict';
+const audioEl=document.getElementById('audio');
+const mini=document.querySelector('.player');
+if(!audioEl||!mini)return;
+function selected(){
+ // current is the playback selection index, not the active tab or cached catalog.
+ try{if(typeof current==='number'&&current>=0&&Array.isArray(songs)&&!!songs[current])return true}catch(e){}
+ return !!(audioEl.currentSrc||audioEl.getAttribute('src'));
+}
+function sync(){
+ const visible=selected();
+ document.body.classList.toggle('pm-no-track',!visible);
+ mini.setAttribute('aria-hidden',String(!visible));
+ if('inert' in mini)mini.inert=!visible;
+}
+// Synchronous initial state prevents an empty bar flashing on first render.
+sync();
+['loadstart','loadedmetadata','play','playing','pause','ended','emptied','abort'].forEach(name=>audioEl.addEventListener(name,sync));
+const srcObserver=new MutationObserver(sync);
+srcObserver.observe(audioEl,{attributes:true,attributeFilter:['src']});
+// Selection starts before cloud download completes. Track selection is reflected in #now.
+const now=document.getElementById('now');
+if(now){const observer=new MutationObserver(sync);observer.observe(now,{childList:true,characterData:true,subtree:true});}
+window.addEventListener('pageshow',sync);
 })();</script></body></html>
