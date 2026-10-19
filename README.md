@@ -1,15 +1,16 @@
-# PureMusic V10.0.4 – Native-inspired Now Playing
+# PureMusic V10.0.5 – Offline Music
 
-by Ho Tan
+**by Ho Tan** · PWA
 
-- Rebuilt Now Playing layout for iPhone and Chrome Windows.
-- Square artwork centered, no duplicate title overlay, responsive controls.
-- Hidden non-functional spectrum in Direct mode and collapsed lyrics card.
-- Lyrics available from player action; family photos accessible via player menu.
-- Preserves Google Drive, OneDrive, playback, Audio Lab, library and queue.
+## Mới trong V10.0.5
+- Thư viện **Đã tải xuống**: xem, phát và xóa từng bài offline.
+- Tải toàn bộ thư viện, theo album hoặc playlist; tiến độ, hủy sau bài đang tải.
+- Quản lý dung lượng và bộ nhớ IndexedDB.
+- Ưu tiên bản offline khi phát; giữ nguyên bộ phát FLAC và OAuth của V10.0.4.
+- Không đưa token OAuth hoặc dữ liệu nhạc vào GitHub.
 
-## Deploy
-Upload all files to the root of GitHub Pages repository.
-
-## Notes
-The code passes JavaScript syntax validation, but actual iOS Safari and Chrome playback have not been verified. Do not claim bit-perfect output.
+## Lưu ý
+- Lần đầu tải cần đăng nhập Drive/OneDrive và Internet.
+- Trình duyệt có thể thu hồi dữ liệu offline khi thiếu bộ nhớ. Không xóa ứng dụng trước khi đảm bảo nhạc còn trên cloud.
+- Chưa xác nhận thực tế trên Safari iPhone; kiểm thử chế độ máy bay sau khi tải.
+- Bộ tải theo nhóm xử lý tuần tự; hủy dừng sau bài hiện tại.
