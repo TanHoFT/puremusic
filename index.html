@@ -74,13 +74,30 @@ function pm86Fold(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u03
 let dbPromise;function db(){return dbPromise||=new Promise((resolve,reject)=>{let r=indexedDB.open('puremusic-audio',1);r.onupgradeneeded=()=>r.result.createObjectStore('audio');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}async function storeGet(k){let d=await db();return new Promise((resolve,reject)=>{let r=d.transaction('audio').objectStore('audio').get(k);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}async function storePut(k,v){let d=await db();return new Promise((resolve,reject)=>{let t=d.transaction('audio','readwrite');t.objectStore('audio').put(v,k);t.oncomplete=resolve;t.onerror=()=>reject(t.error)})}let offlineIds=new Set(JSON.parse(localStorage.getItem('pm_offline')||'[]'));
 // V8.5: share in-flight downloads, retain one upcoming track in RAM.
 const pm85Inflight=new Map();const pm85Warm=new Map();
-// V8.8 diagnostics: downloads are measured without uploading listening history.
+// V8.9 diagnostics: downloads are measured without uploading listening history.
 const pm87Stats={last:null,history:[]};
 function pm87Record(item){pm87Stats.last=item;pm87Stats.history.unshift(item);pm87Stats.history.length=Math.min(12,pm87Stats.history.length);pm87Paint()}
 function pm87Paint(){const target=document.getElementById('pm87Metrics');if(!target)return;const m=pm87Stats.last;target.textContent=m?('Bài gần nhất: '+m.name+' | '+m.source+' | '+m.sizeMB+' MB | '+m.seconds+' giây | '+m.speed+' MB/s'):'Chưa có số liệu tải nhạc trong phiên này.'}
 function pm87Progress(s,done,total){if(!s||current<0||songs[current]?.id!==s.id)return;const pct=total>0?' ('+Math.min(100,Math.round(done/total*100))+'%)':'';status('Đang tải '+s.name+': '+(done/1048576).toFixed(1)+(total?' / '+(total/1048576).toFixed(1):'')+' MB'+pct)}
 async function pm87ResponseBlob(response,s){const length=Number(response.headers.get('content-length')||0);if(!response.body||!response.body.getReader)return response.blob();const reader=response.body.getReader();const chunks=[];let received=0,last=0;while(true){const {done,value}=await reader.read();if(done)break;chunks.push(value);received+=value.byteLength;const now=performance.now();if(now-last>250){pm87Progress(s,received,length);last=now}}pm87Progress(s,received,length);return new Blob(chunks,{type:response.headers.get('content-type')||'application/octet-stream'})}
+// V8.9: adaptive prefetch. Keep memory bounded on mobile Safari.
 const PM85_PREFETCH_LIMIT=35*1024*1024;
+const pm89Stats={hit:0,miss:0,prefetch:0,skipped:0,last:'Chưa phát bài'};
+function pm89Report(){const node=document.getElementById('pm89Metrics');if(node)node.textContent=`Bộ đệm RAM: ${pm85Warm.size} bài · Dùng lại: ${pm89Stats.hit} · Tải mới: ${pm89Stats.miss} · Tải trước: ${pm89Stats.prefetch} · Bỏ qua: ${pm89Stats.skipped} | ${pm89Stats.last}`}
+function pm89Upcoming(){
+  try{const q=JSON.parse(localStorage.getItem('pm88_queue')||'null');
+    if(q?.active&&Array.isArray(q.list)&&q.position+1<q.list.length){const k=q.list[q.position+1];const s=songs.find(x=>pm85Key(x)===k);if(s)return s}
+  }catch(e){}
+  return songs[(current+1)%songs.length];
+}
+function pm89CanPrefetch(s){
+  if(!s||!tokens[s.provider]||!PM85_PREFETCH_ENABLED||document.hidden)return false;
+  if(!Number(s.size)||Number(s.size)>PM85_PREFETCH_LIMIT)return false;
+  const c=navigator.connection;
+  if(c&&(c.saveData||/2g/.test(c.effectiveType||'')||c.type==='cellular'))return false;
+  return true;
+}
+
 const PM85_PREFETCH_ENABLED=localStorage.getItem('pm85_prefetch')!=='off';
 let pm85PlaySequence=0,pm85WarmTimer=null;
 function pm85Key(s){return s.provider+':'+s.id}
@@ -110,10 +127,11 @@ async function pm85FetchBlob(s){
 }
 async function getBlob(s){
   const key=pm85Key(s);
-  if(pm85Warm.has(key))return pm85Warm.get(key);
+  if(pm85Warm.has(key)){pm89Stats.hit++;pm89Stats.last='Phát từ RAM: '+s.name;pm89Report();return pm85Warm.get(key)}
   if(pm85Inflight.has(key))return pm85Inflight.get(key);
   const promise=(async()=>{
-    let saved=null;try{saved=await storeGet(key)}catch(e){console.warn('Offline cache unavailable:',e)}if(saved)return saved;
+    let saved=null;try{saved=await storeGet(key)}catch(e){console.warn('Offline cache unavailable:',e)}if(saved){pm89Stats.hit++;pm89Stats.last='Phát offline: '+s.name;pm89Report();return saved;}
+    pm89Stats.miss++;pm89Stats.last='Tải từ cloud: '+s.name;pm89Report();
     return pm85FetchBlob(s);
   })();
   pm85Inflight.set(key,promise);
@@ -122,20 +140,20 @@ async function getBlob(s){
 function pm85PrefetchNext(){
   clearTimeout(pm85WarmTimer);
   pm85WarmTimer=setTimeout(async()=>{
-    if(!PM85_PREFETCH_ENABLED||document.hidden||!songs.length||current<0||shuffle)return;
-    const s=songs[(current+1)%songs.length];if(!s||!tokens[s.provider])return;
+    const s=pm89Upcoming();
+    if(!pm89CanPrefetch(s)){pm89Stats.skipped++;pm89Report();return;}
     const key=pm85Key(s);
     if(pm85Warm.has(key)||pm85Inflight.has(key))return;
-    if(Number(s.size)>PM85_PREFETCH_LIMIT)return;
-    const net=navigator.connection;
-    if(net&&(net.saveData||/2g/.test(net.effectiveType||'')))return;
     try{
       const blob=await getBlob(s);
-      if(blob.size>PM85_PREFETCH_LIMIT)return;
-      pm85Warm.clear();pm85Warm.set(key,blob);
-    }catch(e){console.debug('Prefetch skipped:',e.message)}
-  },1200);
+      if(blob.size>PM85_PREFETCH_LIMIT||document.hidden)return;
+      pm85Warm.clear(); // Retain one upcoming track to limit Safari memory use.
+      pm85Warm.set(key,blob);
+      pm89Stats.prefetch++;pm89Stats.last='Đã chuẩn bị bài tiếp: '+s.name;pm89Report();
+    }catch(e){pm89Stats.skipped++;pm89Report();console.debug('Prefetch skipped:',e.message)}
+  },1800);
 }
+document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTimeout(pm85WarmTimer)});
 
 async function play(i){
   if(i<0||!songs[i])return;
@@ -156,7 +174,7 @@ async function play(i){
     status('Đã tải tệp · đang khởi động bộ giải mã…');
     await audio.play();
     if(seq!==pm85PlaySequence)return;
-    status('Đang phát '+s.name+' · chờ '+((performance.now()-started)/1000).toFixed(1)+' giây');
+    status('Đang phát '+s.name+' · chờ '+((performance.now()-started)/1000).toFixed(1)+' giây');pm89Stats.last='Bắt đầu phát sau '+((performance.now()-started)/1000).toFixed(1)+' giây: '+s.name;pm89Report();
     pm85PrefetchNext();
   }catch(e){if(seq===pm85PlaySequence)status('Không phát được: '+e.message+'. Kiểm tra kết nối và định dạng FLAC trên Safari.')}
 }function step(n){if(!songs.length)return;play(shuffle?Math.floor(Math.random()*songs.length):(current+n+songs.length)%songs.length)}$('prev').onclick=()=>step(-1);$('next').onclick=()=>step(1);audio.onended=()=>step(1);$('shuffle').onclick=()=>{shuffle=!shuffle;$('shuffle').style.color=shuffle?'#00e1ef':'white'};$('download').onclick=async()=>{if(current<0)return;let s=songs[current],key=s.provider+':'+s.id;status('Đang lưu offline '+s.name+'...');try{await storePut(key,await getBlob(s));offlineIds.add(key);localStorage.setItem('pm_offline',JSON.stringify([...offlineIds]));render();status('Đã lưu offline '+s.name+'. Dữ liệu có thể bị iOS xóa khi thiếu dung lượng.')}catch(e){status('Không lưu được: '+e.message)}};
@@ -336,7 +354,7 @@ const originalRender=render;render=function(){originalRender();draw()};
 const oldEnded=audio.onended;audio.onended=()=>{if(queueActive&&activeList.length){const next=position+1;if(next<activeList.length){position=next;pm88Save();playKey(activeList[next]);return}queueActive=false;pm88Save()}if(typeof oldEnded==='function')oldEnded()};
 // Preserve the original previous/next controls while a scoped queue is active.
 for(const [id,delta] of [['prev',-1],['next',1]]){const b=$(id);b.addEventListener('click',e=>{if(!queueActive)return;const p=position+delta;if(p<0||p>=activeList.length)return;e.stopImmediatePropagation();position=p;pm88Save();playKey(activeList[p])},true)}
-// V8.8: restore queue metadata and listening position without automatically playing on page load.
+// V8.9: restore queue metadata and listening position without automatically playing on page load.
 const pm88ResumeBar=document.createElement('div');pm88ResumeBar.id='pm88ResumeBar';pm88ResumeBar.style.cssText='display:none;position:fixed;z-index:7000;left:12px;right:12px;bottom:165px;background:#18262b;border:1px solid #28636a;border-radius:15px;padding:13px;color:#eaffff;box-shadow:0 12px 30px #0008';document.body.append(pm88ResumeBar);
 function pm88OfferResume(){if(!pm88PendingResume||!pm88KeyPresent(pm88PendingResume.key))return;const s=songs.find(x=>x.provider+':'+x.id===pm88PendingResume.key);if(!s)return;pm88ResumeBar.replaceChildren();const title=document.createElement('div');title.textContent='Tiếp tục nghe: '+s.title+' · '+Math.floor((pm88PendingResume.time||0)/60)+':'+String(Math.floor((pm88PendingResume.time||0)%60)).padStart(2,'0');title.style.marginBottom='8px';const yes=document.createElement('button');yes.textContent='▶ Tiếp tục';yes.style.cssText='background:#00d7e9;color:#04232a;margin-right:8px';yes.onclick=()=>{const t=pm88PendingResume.time||0;pm88PendingResume=null;pm88ResumeBar.style.display='none';playKey(s.provider+':'+s.id);const onmeta=()=>{if(Number.isFinite(audio.duration))audio.currentTime=Math.min(t,Math.max(0,audio.duration-1));audio.removeEventListener('loadedmetadata',onmeta)};audio.addEventListener('loadedmetadata',onmeta);if(audio.readyState>=1)onmeta()};const no=document.createElement('button');no.textContent='Để sau';no.onclick=()=>{pm88ResumeBar.style.display='none';pm88PendingResume=null};pm88ResumeBar.append(title,yes,no);pm88ResumeBar.style.display='block'}
 const pm88OriginalRender=render;render=function(){pm88OriginalRender();if(pm88PendingResume)pm88OfferResume()};
@@ -423,7 +441,7 @@ audio.addEventListener('loadedmetadata',()=>{lastKey='';inspect();mediaSession()
 
 </script><script id="pm81-restore">
 (()=>{'use strict';
- const VERSION='8.8.0', CATALOG='pm81_catalog', MAX=6000;
+ const VERSION='8.9.0', CATALOG='pm81_catalog', MAX=6000;
  const safeRead=()=>{try{const v=JSON.parse(localStorage.getItem(CATALOG)||'null');return v&&Array.isArray(v.songs)?v:null}catch{return null}};
  const safeWrite=()=>{try{if(!Array.isArray(songs)||!songs.length)return;const data=songs.slice(0,MAX).map(s=>({id:s.id,provider:s.provider,title:s.title,artist:s.artist,album:s.album,name:s.name,size:s.size,parents:s.parents}));localStorage.setItem(CATALOG,JSON.stringify({at:Date.now(),songs:data}))}catch(e){console.warn('Catalog cache:',e)}};
  const saved=safeRead();
@@ -525,4 +543,5 @@ $('v3Gain').addEventListener('input',()=>setTimeout(()=>{data.gain=Number($('v3G
  input.onchange=()=>{localStorage.setItem('pm85_prefetch',input.checked?'on':'off');location.reload()};
  label.append(input,span);row.append(label);host.append(row);
 })();
-</script><script id="pm87-ux">(()=>{const panel=document.createElement('section');panel.className='v3card';panel.style.cssText='margin:16px 0;padding:16px;border:1px solid #ffffff25;border-radius:18px';panel.innerHTML='<h3 style="margin:0 0 8px">Hiệu năng phát FLAC</h3><p id="pm87Metrics" style="font-size:13px;line-height:1.7;color:#b8cbd1">Chưa có số liệu tải nhạc.</p><p style="font-size:12px;color:#9ba9b2">Bản V8.8 đo thời gian tải tệp thực tế. Lần đầu vẫn cần tải toàn bộ FLAC; đây chưa phải streaming theo phần.</p>';const settings=document.getElementById('v3config');if(settings)settings.append(panel);if(typeof pm87Paint==='function')pm87Paint()})();</script></body></html>
+</script><script id="pm87-ux">(()=>{const panel=document.createElement('section');panel.className='v3card';panel.style.cssText='margin:16px 0;padding:16px;border:1px solid #ffffff25;border-radius:18px';panel.innerHTML='<h3 style="margin:0 0 8px">Hiệu năng phát FLAC</h3><p id="pm87Metrics" style="font-size:13px;line-height:1.7;color:#b8cbd1">Chưa có số liệu tải nhạc.</p><p style="font-size:12px;color:#9ba9b2">Bản V8.9 đo thời gian tải tệp thực tế. Lần đầu vẫn cần tải toàn bộ FLAC; đây chưa phải streaming theo phần.</p>';const settings=document.getElementById('v3config');if(settings)settings.append(panel);if(typeof pm87Paint==='function')pm87Paint()})();</script>
+<script id="pm89-ui">(()=>{const settings=document.getElementById('v3config');if(!settings)return;const p=document.createElement('section');p.className='v3card';p.innerHTML='<h3>Playback Engine V8.9</h3><p id="pm89Metrics" style="font-size:13px;line-height:1.6">Chưa có số liệu.</p><p style="font-size:12px;color:#a9a4af">Ưu tiên hàng chờ khi tải trước; tối đa một bài 35 MB trong RAM. Tự bỏ qua file lớn, mạng yếu và chế độ tiết kiệm dữ liệu. FLAC lần đầu vẫn cần tải toàn bộ.</p>';settings.append(p);pm89Report()})();</script></body></html>
