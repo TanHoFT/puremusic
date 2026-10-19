@@ -366,9 +366,50 @@ function detailPage(field){const g=group(field),arr=sorted(g.get(detail)||[]);he
 function songsPage(){const arr=sorted(list());header('Bài hát',arr.length+' bài hát',true);searchBox();filteredButtons();const sel=el('select','pm7search');for(const [v,t] of [['name','Tên bài hát A–Z'],['artist','Theo nghệ sĩ'],['recent','Thứ tự quét']]){const o=el('option','',t);o.value=v;sel.append(o)}sel.value=sort;sel.onchange=()=>{sort=sel.value;draw()};app.append(sel);controls(arr);arr.forEach(s=>app.append(trackRow(s)))}
 function playlistsPage(){header('Danh sách phát',Object.keys(playlists).length+' playlist',true);const f=el('div','pm7playlistform');const input=el('input');input.placeholder='Tên playlist mới';f.append(input,btn('+ Tạo',()=>{const name=input.value.trim();if(!name)return;if(playlists[name])return alert('Tên playlist đã tồn tại');playlists[name]=[];saveLists();navigate('playlist',name)}));app.append(f);for(const name of Object.keys(playlists)){const b=btn('',()=>navigate('playlist',name),'pm7entry');b.append(el('span','pm7cover','▣'));const w=el('span','pm7words');w.append(el('strong','',name),el('small','',playlists[name].length+' bài'));b.append(w);app.append(b)}}
 function playlistPage(){const arr=(playlists[detail]||[]).map(k=>songs.find(s=>key(s)===k)).filter(Boolean);header(detail,arr.length+' bài hát',true);controls(arr);app.append(btn('Đổi tên / Xóa playlist',()=>{const next=prompt('Tên mới (để trống để xóa playlist):',detail);if(next===null)return;if(!next.trim()){if(confirm('Xóa playlist này?')){delete playlists[detail];saveLists();navigate('playlists')}return}if(next!==detail){if(playlists[next])return alert('Tên đã tồn tại');playlists[next]=playlists[detail];delete playlists[detail];saveLists();navigate('playlist',next)}}));arr.forEach(s=>{const r=trackRow(s);r.append(btn('×',()=>{playlists[detail]=playlists[detail].filter(k=>k!==key(s));saveLists();draw()}));app.append(r)});app.append(el('p','pm7hint','Để thêm bài hát: mở mục Bài hát, nhấn dấu ⋯ cạnh bài và chọn playlist.'))}
-function queuePage(){header('Hàng chờ',activeList.length+' bài',true);if(!activeList.length){app.append(el('p','pm7empty','Chưa có hàng chờ. Mở album hoặc danh sách bài hát rồi chọn Phát tất cả.'));return}activeList.forEach((k,i)=>{const s=songs.find(x=>key(x)===k);if(!s)return;const r=el('div','pm7queueitem');r.append(btn((i===position?'▶  ':'')+s.title,()=>{position=i;pm88Save();playKey(k)}));r.append(btn('↑',()=>move(i,-1)),btn('↓',()=>move(i,1)));app.append(r)});app.append(el('p','pm7hint','Hàng chờ hoạt động trong phiên mở ứng dụng. Dùng ↑ ↓ để đổi thứ tự.'))}
+function queuePage(){header('Hàng chờ',activeList.length+' bài',true);const launch=btn('Mở hàng chờ',()=>showQueue());launch.className='pm102Launch';app.append(launch);const hint=el('p','pm7hint','Kéo thả để đổi thứ tự, hoặc dùng menu từng bài.');app.append(hint);if(!activeList.length)app.append(el('p','pm7empty','Hàng chờ đang trống.'))}
 function removeQueue(i){activeList.splice(i,1);if(i<position)position--;else if(i===position)position=Math.min(position,activeList.length-1);if(!activeList.length)queueActive=false;pm88Save();showQueue();}
-function showQueue(){const box=document.getElementById('pm72QueueBody');box.replaceChildren();const list=activeList.length?activeList:(current>=0&&songs[current]?[key(songs[current])]:[]);if(!list.length){box.append(el('p','pm7empty','Chưa có bài hát trong hàng chờ. Vào Album hoặc Bài hát và chọn Phát tất cả.'))}else{box.append(el('p','pm72qsub',`${list.length} bài · Chạm để phát, dùng mũi tên để đổi thứ tự`));list.forEach((k,i)=>{const s=songs.find(x=>key(x)===k);if(!s)return;const row=el('div','pm72qrow');row.append(cover(s));const name=el('div','pm72qname');name.append(el('strong','',`${i===position?'▶  ':''}${s.title}`),el('small','',s.artist));name.onclick=()=>{if(activeList.length){position=i;queueActive=true;pm88Save()}playKey(k)};row.append(name);if(activeList.length){row.append(btn('↑',()=>{move(i,-1);showQueue()}),btn('↓',()=>{move(i,1);showQueue()}),btn('×',()=>removeQueue(i)))}box.append(row)})}queueSheet.classList.add('open')}
+function pm102Reorder(from,to){
+ if(from===to||from<0||to<0||from>=activeList.length||to>=activeList.length)return;
+ const playing=activeList[position];const moved=activeList.splice(from,1)[0];activeList.splice(to,0,moved);
+ position=playing?activeList.indexOf(playing):-1;pm88Save();draw();showQueue();
+}
+function pm102Menu(index,anchor){
+ document.querySelector('.pm102Menu')?.remove();const menu=el('div','pm102Menu');menu.setAttribute('role','menu');
+ const choices=[['Phát ngay',()=>{position=index;queueActive=true;pm88Save();playKey(activeList[index]);showQueue()}],['Phát tiếp theo',()=>pm102Reorder(index,Math.min(position+1,activeList.length-1))],['Chuyển lên đầu',()=>pm102Reorder(index,0)],['Chuyển xuống cuối',()=>pm102Reorder(index,activeList.length-1)],['Xóa khỏi hàng chờ',()=>removeQueue(index)]];
+ choices.forEach(([name,fn])=>{const b=btn(name,()=>{menu.remove();fn()});b.setAttribute('role','menuitem');menu.append(b)});
+ anchor.parentElement.append(menu);menu.querySelector('button')?.focus();
+ const close=e=>{if(!menu.contains(e.target)&&e.target!==anchor){menu.remove();document.removeEventListener('pointerdown',close,true)}};
+ setTimeout(()=>document.addEventListener('pointerdown',close,true),0);
+}
+function showQueue(){
+ const box=document.getElementById('pm72QueueBody');const savedScroll=queueSheet.classList.contains('open')?queueSheet.scrollTop:0;
+ box.replaceChildren();const list=activeList.length?activeList:(current>=0&&songs[current]?[key(songs[current])]:[]);
+ if(!list.length){box.append(el('p','pm7empty','Hàng chờ đang trống. Hãy chọn Phát tất cả từ Album hoặc Bài hát.'))}
+ else{
+  box.append(el('p','pm72qsub',`${list.length} bài · Kéo tay nắm để đổi thứ tự`));
+  const rows=el('div','pm102Rows');box.append(rows);
+  const map=new Map(songs.map(s=>[key(s),s]));
+  list.forEach((k,i)=>{const song=map.get(k);if(!song)return;
+   const row=el('div','pm102Row');row.dataset.index=i;row.dataset.key=k;if(i===position)row.classList.add('is-playing');
+   const number=el('span','pm102Index',String(i+1));row.append(number);
+   const artwork=cover(song);artwork.classList.add('pm102Artwork');row.append(artwork);
+   const info=el('button','pm102Info');info.type='button';info.append(el('strong','',song.title),el('small','',song.artist||'Nghệ sĩ chưa rõ'));
+   info.setAttribute('aria-label','Phát '+song.title);info.onclick=()=>{if(activeList.length){position=i;queueActive=true;pm88Save()}playKey(k);showQueue()};row.append(info);
+   if(i===position){const state=el('span','pm102Playing','Đang phát');row.append(state)}
+   if(activeList.length){
+    const grip=el('button','pm102Grip');grip.type='button';grip.setAttribute('aria-label','Giữ và kéo để đổi thứ tự '+song.title);grip.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path fill="currentColor" d="M9 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm6 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9 10.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm6 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9 17a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm6 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>';
+    let pointerStart=null;
+    grip.addEventListener('pointerdown',e=>{if(e.button!==0)return;pointerStart={id:e.pointerId,from:i,y:e.clientY};grip.setPointerCapture(e.pointerId);row.classList.add('is-dragging')});
+    grip.addEventListener('pointerup',e=>{if(!pointerStart)return;const y=e.clientY;const candidate=document.elementFromPoint(e.clientX,y)?.closest('.pm102Row');const target=candidate?Number(candidate.dataset.index):i;pointerStart=null;row.classList.remove('is-dragging');pm102Reorder(i,target)});
+    grip.addEventListener('pointercancel',()=>{pointerStart=null;row.classList.remove('is-dragging')});
+    row.append(grip);
+    const more=el('button','pm102More','⋯');more.type='button';more.setAttribute('aria-label','Tùy chọn '+song.title);more.onclick=()=>pm102Menu(i,more);row.append(more);
+   }
+   rows.append(row);
+  });
+ }
+ queueSheet.classList.add('open');queueSheet.scrollTop=savedScroll;
+}
 window.pm7OpenQueue=showQueue;document.getElementById('fullList').onclick=(e)=>{e.stopPropagation();showQueue()};
 function move(i,step){const j=i+step;if(j<0||j>=activeList.length)return;[activeList[i],activeList[j]]=[activeList[j],activeList[i]];if(position===i)position=j;else if(position===j)position=i;pm88Save();draw();if(document.getElementById('pm72Queue').classList.contains('open'))showQueue()}
 function draw(keepFocus=false){const focus=keepFocus&&document.activeElement?.id==='pm7search';const caret=focus?document.activeElement.selectionStart:0;app.replaceChildren();if(view==='home')home();else if(view==='albums')groupsPage('album');else if(view==='artists')groupsPage('artist');else if(view==='album')detailPage('album');else if(view==='artist')detailPage('artist');else if(view==='songs')songsPage();else if(view==='playlists')playlistsPage();else if(view==='playlist')playlistPage();else if(view==='queue')queuePage();if(focus){const x=app.querySelector('input.pm7search');if(x){x.focus();x.setSelectionRange(caret,caret)}}}
@@ -382,7 +423,14 @@ const pm88ResumeBar=document.createElement('div');pm88ResumeBar.id='pm88ResumeBa
 function pm88OfferResume(){if(!pm88PendingResume||!pm88KeyPresent(pm88PendingResume.key))return;const s=songs.find(x=>x.provider+':'+x.id===pm88PendingResume.key);if(!s)return;pm88ResumeBar.replaceChildren();const title=document.createElement('div');title.textContent='Tiếp tục nghe: '+s.title+' · '+Math.floor((pm88PendingResume.time||0)/60)+':'+String(Math.floor((pm88PendingResume.time||0)%60)).padStart(2,'0');title.style.marginBottom='8px';const yes=document.createElement('button');yes.textContent='▶ Tiếp tục';yes.style.cssText='background:#00d7e9;color:#04232a;margin-right:8px';yes.onclick=()=>{const t=pm88PendingResume.time||0;pm88PendingResume=null;pm88ResumeBar.style.display='none';playKey(s.provider+':'+s.id);const onmeta=()=>{if(Number.isFinite(audio.duration))audio.currentTime=Math.min(t,Math.max(0,audio.duration-1));audio.removeEventListener('loadedmetadata',onmeta)};audio.addEventListener('loadedmetadata',onmeta);if(audio.readyState>=1)onmeta()};const no=document.createElement('button');no.textContent='Để sau';no.onclick=()=>{pm88ResumeBar.style.display='none';pm88PendingResume=null};pm88ResumeBar.append(title,yes,no);pm88ResumeBar.style.display='block'}
 const pm88OriginalRender=render;render=function(){pm88OriginalRender();if(pm88PendingResume)pm88OfferResume()};
 audio.addEventListener('timeupdate',()=>{const now=Date.now();if(now-pm88LastSaved<5000||current<0||!songs[current])return;pm88LastSaved=now;try{localStorage.setItem('pm88_resume',JSON.stringify({key:key(songs[current]),time:audio.currentTime||0,at:now}))}catch(e){console.warn('Resume persistence:',e)}});
-const pm88OriginalQueue=showQueue;showQueue=function(){pm88OriginalQueue();const box=document.getElementById('pm72QueueBody');const bar=document.createElement('div');bar.className='pm88QueueActions';bar.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin:12px 0';const save=btn('Lưu hàng chờ thành playlist',()=>{const name=prompt('Tên danh sách phát:','Hàng chờ của tôi');if(!name?.trim())return;playlists[name.trim()]=[...activeList];saveLists();alert('Đã lưu '+activeList.length+' bài vào '+name.trim())});const clear=btn('Xóa bài sắp phát',()=>{if(!confirm('Xóa các bài đang chờ, giữ bài hiện tại?'))return;activeList=position>=0&&activeList[position]?[activeList[position]]:[];position=activeList.length?0:-1;queueActive=activeList.length>0;pm88Save();showQueue()});bar.append(save,clear);box.prepend(bar)};
+const pm102BaseQueue=showQueue;
+showQueue=function(){pm102BaseQueue();const box=document.getElementById('pm72QueueBody');if(!activeList.length)return;
+ const actions=el('div','pm102Actions');
+ actions.append(btn('Lưu thành playlist',()=>{const name=prompt('Tên danh sách phát:','Hàng chờ của tôi');if(!name?.trim())return;playlists[name.trim()]=[...activeList];saveLists();alert('Đã lưu '+activeList.length+' bài vào '+name.trim())}));
+ actions.append(btn('Xóa bài sắp phát',()=>{if(!confirm('Xóa các bài sắp phát, giữ bài hiện tại?'))return;activeList=position>=0&&activeList[position]?[activeList[position]]:[];position=activeList.length?0:-1;queueActive=activeList.length>0;pm88Save();showQueue()}));
+ box.insertBefore(actions,box.querySelector('.pm102Rows'));
+};
+window.pm7OpenQueue=()=>showQueue();
 // V6.4 already provides navigation; this view only replaces the collection content.
 document.querySelector('[data-v3nav="collection"]')?.addEventListener('click',()=>{view='home';draw()});
 draw();
@@ -660,7 +708,7 @@ header{background:none!important}main,#v3collection,.view-v3{background:var(--pm
 </style><script id="pm10-version-and-a11y">(()=>{'use strict';
  document.title='PureMusic · by Ho Tan';
  const versionLabels=Array.from(document.querySelectorAll('#v3config .v3setting')).filter(x=>/Phiên bản/.test(x.textContent));
- versionLabels.forEach(x=>{const b=x.querySelector('b');if(b)b.textContent='10.0.1'});
+ versionLabels.forEach(x=>{const b=x.querySelector('b');if(b)b.textContent='10.0.2'});
  const player=document.getElementById('fullPlayer');if(player){player.setAttribute('role','dialog');player.setAttribute('aria-modal','true');player.setAttribute('aria-label','Trình phát nhạc');}
  const nav=document.querySelector('.nav-v3');if(nav){nav.setAttribute('aria-label','Điều hướng chính');}
  document.querySelectorAll('.nav-v3 button').forEach(b=>b.setAttribute('type','button'));
@@ -697,4 +745,31 @@ srcObserver.observe(audioEl,{attributes:true,attributeFilter:['src']});
 const now=document.getElementById('now');
 if(now){const observer=new MutationObserver(sync);observer.observe(now,{childList:true,characterData:true,subtree:true});}
 window.addEventListener('pageshow',sync);
-})();</script></body></html>
+})();</script><style id="pm102-modern-queue">
+#pm72Queue{background:#090d13!important;color:#edf3f8!important;max-width:100vw!important}
+#pm72Queue .pm72qhead{max-width:1000px;margin:0 auto 8px}
+#pm72QueueBody{max-width:1000px;margin:0 auto}
+#pm72Queue .pm72qhead h2{font-size:clamp(26px,4vw,36px);letter-spacing:-.035em}
+#pm72Queue .pm72qsub{font-size:13px;color:#8b9ba9;margin:10px 0 14px}
+.pm102Rows{border-top:1px solid #ffffff12}
+.pm102Row{position:relative;display:flex;align-items:center;gap:12px;min-height:72px;padding:9px 10px;border-bottom:1px solid #ffffff12;border-radius:9px;transition:background .15s ease}
+.pm102Row:hover,.pm102Row:focus-within{background:#ffffff09}
+.pm102Row.is-playing{background:#2bd4e90b}
+.pm102Row.is-dragging{background:#18353e;outline:1px solid #39d8e8}
+.pm102Index{width:25px;flex:none;text-align:center;color:#7d8997;font-variant-numeric:tabular-nums;font-size:13px}
+.pm102Artwork{width:48px!important;height:48px!important;flex:none!important;border-radius:8px!important}
+.pm102Info{flex:1!important;min-width:0;text-align:left!important;border:0!important;background:transparent!important;color:#e9edf2!important;padding:5px 0!important;display:block!important;overflow:hidden}
+.pm102Info strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:600}
+.pm102Info small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#94a1b0;margin-top:4px;font-size:12px}
+.pm102Playing{font-size:11px;color:#45d9e5;white-space:nowrap}
+.pm102Grip,.pm102More{flex:none!important;display:grid!important;place-items:center!important;width:42px!important;height:44px!important;padding:0!important;border:0!important;background:transparent!important;color:#a7b4c2!important;border-radius:9px!important;touch-action:none;cursor:grab}
+.pm102Grip:active{cursor:grabbing}.pm102Grip:hover,.pm102More:hover{background:#ffffff16!important;color:#fff!important}
+.pm102More{font-size:25px!important;cursor:pointer}
+.pm102Menu{position:absolute;right:8px;top:55px;z-index:5;background:#1b242e;border:1px solid #40505d;box-shadow:0 16px 36px #0009;border-radius:14px;padding:6px;width:min(245px,70vw);display:flex;flex-direction:column;gap:2px}
+.pm102Menu button{background:transparent!important;border:0!important;text-align:left;color:#e8f0f7!important;padding:12px!important;border-radius:8px!important;font-size:13px!important}
+.pm102Menu button:hover{background:#ffffff16!important}
+.pm102Actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px}
+.pm102Actions button,.pm102Launch{border-radius:12px!important;background:#1b2932!important;border:1px solid #2d4852!important;color:#bdebf1!important;padding:11px 14px!important;font-size:13px!important}
+@media(max-width:540px){.pm102Row{gap:8px;padding:7px 2px}.pm102Index{width:19px}.pm102Artwork{width:43px!important;height:43px!important}.pm102Playing{display:none}.pm102Grip,.pm102More{width:36px!important}}
+@media(prefers-reduced-motion:reduce){.pm102Row{transition:none}}
+</style></body></html>

@@ -1,16 +1,11 @@
-# PureMusic V10.0.1 – Clean Mini Player
+# PureMusic V10.0.2 - Modern Queue
 
 **by Ho Tan**
 
-## Thay đổi
-- Chưa chọn bài: ẩn Mini Player trên cả Thư viện, Audio Lab và Cài đặt.
-- Chọn bài / đang tải / đang phát / tạm dừng: hiện Mini Player để điều khiển.
-- Không chiếm khoảng trống khi chưa có bài, không làm thay đổi điều hướng 3 tab.
-- Giữ nguyên Google Drive, OneDrive, Audio Lab, hàng chờ, phát nền và FLAC từ V10.0.
-- Cập nhật phiên bản cache để nhận bản mới.
+- Hàng chờ có giao diện mới: ảnh bìa, tên bài, ca sĩ và bài đang phát.
+- Kéo tay nắm 6 chấm để thay đổi thứ tự trên máy tính hoặc màn hình cảm ứng.
+- Menu từng bài: phát ngay, phát tiếp, lên đầu, xuống cuối, xóa.
+- Giữ lưu hàng chờ thành playlist và xóa các bài sắp phát.
+- Giữ các tính năng V10.0.1: Google Drive, OneDrive, Audio Lab, trình phát và mini-player.
 
-## Cập nhật
-Upload 5 file vào thư mục gốc GitHub Pages, thay thế file cùng tên.
-
-## Kiểm thử
-Đã kiểm tra cú pháp JavaScript tĩnh. Chưa kiểm thử trực tiếp trên Safari iPhone / Chrome Windows với tài khoản cloud.
+Chưa kiểm thử tương tác trực tiếp trên Safari iPhone.
