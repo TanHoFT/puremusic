@@ -1,9 +1,9 @@
-# PureMusic 11.1.0 – Folder Scope & Menu Icons
+# PureMusic V11.2.0 – Searchable Queue
 
-- Chọn một thư mục Google Drive hoặc OneDrive trong Cài đặt; lưu lựa chọn vào localStorage.
-- Quét chỉ thư mục đã chọn và các thư mục con; không quét toàn bộ tài khoản.
-- Khi đổi thư mục, làm mới danh sách bài của nguồn đó; giữ bài đã tải offline.
-- Thêm icon gọn cho menu bài hát.
-- Không thay đổi đường phát FLAC, hàng chờ, playlist và Audio Lab.
-- OAuth có thể cần đăng nhập lại khi hết hạn.
-- Chưa kiểm thử OAuth/scan thực tế trên iPhone.
+- Hàng chờ có ô tìm kiếm theo tên bài, nghệ sĩ, album, không dấu tiếng Việt.
+- Tìm kiếm toàn bộ hàng chờ kể cả 1000+ bài.
+- Chỉ dựng các dòng đang hiển thị (virtual scrolling) để giảm giật khi cuộn.
+- Nút Đang phát nhảy tới bài hiện tại.
+- Chạm tên bài phát ngay; menu và kéo sắp xếp giữ nguyên.
+- Không đổi bộ phát FLAC, Google Drive, OneDrive, offline hay Audio Lab.
+- Đã kiểm tra cú pháp JS; chưa kiểm thử Safari iPhone thực tế.
