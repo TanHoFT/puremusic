@@ -1,18 +1,9 @@
-# PureMusic V8.9 – Playback Engine
+# PureMusic V9.0 – Hi-Fi Audio Lab
 
-**by Ho Tan** · PWA · Google Drive / OneDrive
+**by Ho Tan** · PWA · 19/10/2026
 
-## Cải tiến so với V8.8
-- Tải trước bài kế tiếp theo **hàng chờ thực tế** (thay vì bài tiếp theo trong toàn thư viện).
-- Chỉ tải trước khi biết kích thước và file không vượt 35 MB; không tải trước trên mạng yếu/tiết kiệm dữ liệu (khi trình duyệt cung cấp thông tin).
-- Giới hạn bộ nhớ đệm RAM ở một bài; tái sử dụng tải dở và file offline.
-- Hiển thị thống kê cache và thời gian chờ tại Cài đặt → Playback Engine.
-- Giữ hàng chờ, Audio Lab, Google Drive/OneDrive, lyrics, giao diện.
+Nâng cấp từ V8.9: ReplayGain từ tag FLAC (Track/Album), offset thủ công, hồ sơ tai nghe/loa, ước lượng headroom, Signal Path rõ trạng thái.
 
-## Giới hạn
-- File FLAC đầu tiên **vẫn phải tải toàn bộ** trước khi phát. Chưa có streaming HTTP Range xác thực.
-- Safari iOS có thể không cung cấp thông tin loại mạng; tốc độ thực tế phụ thuộc file và kết nối.
-- Không xác nhận bit-perfect.
+**Quan trọng:** DSP bị bypass trên iPhone để ưu tiên phát nhạc nền. ReplayGain chỉ tác động âm thanh khi Web Audio DSP được bật trên nền tảng tương thích. Đây không phải phép đo LUFS/true peak hay xác minh bit-perfect.
 
-## Triển khai
-Giải nén và upload cả 5 file vào thư mục gốc của repository GitHub Pages `puremusic`. Không tải nguyên ZIP lên GitHub.
+Cài đặt: tải toàn bộ 5 tệp lên thư mục gốc GitHub Pages. Giữ cấu hình OAuth cục bộ trong trình duyệt.
