@@ -4,7 +4,40 @@
 
 /* Queue V11.2: search all, virtualize visible rows only */
 .queue-summary{display:grid;gap:12px;margin:8px 0 12px}.queue-search{margin:0}.queue-actions{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:3px}.queue-actions .btn{flex-shrink:0;font-size:13px;min-height:40px}.queue-result{font-size:12px;min-height:8px;margin:4px 0}.queue-viewport{height:min(65dvh,650px);min-height:260px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.queue-space{position:relative;width:100%;min-height:1px}.queue-track{position:absolute;left:0;right:0;height:76px;min-height:76px;padding:8px 2px;gap:9px}.queue-track .cover{width:46px;height:46px}.queue-track .track-main strong{font-size:14px}.queue-track .track-main small{font-size:12px}.queue-track .icon{min-width:38px}.queue-number{width:22px;text-align:center;font-size:12px;color:var(--muted);flex-shrink:0}.queue-grip{font-size:24px;color:var(--muted);touch-action:none;cursor:grab}.queue-grip.dragging{color:var(--accent);cursor:grabbing}.queue-track.current{background:#15343d}.queue-track.current .track-main strong{color:var(--accent)}@media(max-width:400px){.queue-track{gap:5px}.queue-track .cover{width:42px;height:42px}.queue-track .icon{min-width:34px}}
-</style></head><body><main class="shell"><div class="top"><div class="brand">PureMusic<small>by Ho Tan · Hi-Fi Cloud Player</small></div><button class="icon" id="searchFocus" aria-label="Tìm kiếm">⌕</button></div><div id="content"></div></main><div class="mini" id="mini"><img id="miniCover" class="cover" alt=""><button class="main" id="miniOpen"><strong id="miniTitle"></strong><small id="miniArtist"></small></button><button class="icon" id="miniToggle" aria-label="Phát hoặc tạm dừng">▶</button></div><nav class="nav" id="nav"><button data-page="library" class="active"><span>♫</span>Thư viện</button><button data-page="lab"><span>≋</span>Audio Lab</button><button data-page="settings"><span>⚙</span>Cài đặt</button></nav><section class="sheet" id="player" aria-label="Trình phát"><div class="sheet-inner"><div class="sheet-head"><button class="icon" id="closePlayer" aria-label="Thu nhỏ">⌄</button><strong id="playerSource">ĐANG PHÁT</strong><button class="icon" id="playerMore" aria-label="Tùy chọn">⋯</button></div><div class="player-art"><img class="cover large" id="art" alt="Ảnh bìa"></div><div class="player-title"><div><h2 id="title"></h2><p id="artist"></p><span class="badge" id="quality"></span></div><button class="icon" id="like" aria-label="Yêu thích">♡</button></div><input class="seek" type="range" min="0" max="1000" value="0" id="seek" aria-label="Vị trí bài hát"><div class="times"><span id="elapsed">0:00</span><span id="remaining">-0:00</span></div><div class="controls"><button class="icon" id="shuffle" aria-label="Ngẫu nhiên">⤨</button><button class="icon" id="previous" aria-label="Bài trước">|◀</button><button class="big" id="toggle" aria-label="Phát hoặc tạm dừng">▶</button><button class="icon" id="next" aria-label="Bài tiếp">▶|</button><button class="icon" id="repeat" aria-label="Lặp lại">↻</button></div><div class="player-bottom"><button id="lyricsBtn"><span>▤</span>Lời bài hát</button><button id="queueBtn"><span>☷</span>Hàng chờ</button></div></div></section><section class="sheet" id="subsheet"><div class="sheet-inner"><div class="sheet-head"><button class="icon" id="subBack">‹</button><strong id="subTitle"></strong><span style="width:42px"></span></div><div id="subContent"></div></div></section><div class="menu" id="menu"><div class="menu-content" id="menuItems"></div></div><div class="notice" id="toast" role="status"></div><audio id="audio" playsinline preload="metadata"></audio><script>
+
+/* PureMusic 11.3 — Balanced Player & native-feeling swipe sheet */
+:root{--player-safe-top:env(safe-area-inset-top,0px);--player-safe-bottom:env(safe-area-inset-bottom,0px)}
+body.player-visible{overflow:hidden}
+#player.sheet{display:block;overflow:hidden;transform:translate3d(0,var(--drag-y,100dvh),0);transition:none;visibility:hidden;pointer-events:none;overscroll-behavior:contain;padding:0;background:#090e15;touch-action:pan-y}
+#player.sheet.open{visibility:visible;pointer-events:auto;--drag-y:0px}
+#player.sheet.settling{transition:transform .28s cubic-bezier(.22,.75,.25,1)}
+#player .sheet-inner{height:100dvh;max-height:none;max-width:610px;overflow:hidden;display:flex;flex-direction:column;align-items:stretch;margin:auto;padding:calc(var(--player-safe-top) + 9px) clamp(20px,5vw,34px) calc(var(--player-safe-bottom) + 18px);background:transparent;border-radius:0;gap:0}
+#player .sheet-head{position:relative;display:flex;align-items:center;justify-content:center;flex:0 0 46px;margin:0 0 clamp(9px,1.8dvh,18px);touch-action:none;user-select:none;-webkit-user-select:none}
+#player .sheet-handle{position:absolute;top:1px;left:50%;transform:translateX(-50%);width:39px;height:5px;border-radius:20px;background:#78879680;display:block}
+#player .sheet-head strong{font-size:11px;letter-spacing:1.7px;color:#9aaab8;padding-top:15px;font-weight:600}
+#player .sheet-head #playerMore{position:absolute;right:0;top:6px;font-size:22px}
+#player .player-art{flex:0 1 auto;min-height:0;display:flex;justify-content:center;align-items:center;margin:0 0 clamp(13px,2.5dvh,24px);touch-action:none}
+#player .cover.large{width:min(84vw,420px,calc((100dvh - var(--player-safe-top) - var(--player-safe-bottom) - 390px)));height:auto;aspect-ratio:1;max-height:100%;min-width:0;object-fit:contain;border-radius:16px;box-shadow:0 16px 42px #0005}
+#player .player-title{flex:0 0 auto;margin:0 0 clamp(17px,2.5dvh,27px);gap:12px}
+#player .player-title h2{font-size:clamp(21px,3.3vw,27px);letter-spacing:-.45px;margin:0 0 5px}
+#player .player-title p{font-size:15px}
+#player .badge{display:block;margin-top:7px;font-size:10px}
+#player .seek{margin:0;flex:0 0 auto;min-height:18px}
+#player .times{margin:3px 0 clamp(14px,2.6dvh,27px);flex:0 0 auto}
+#player .controls{flex:0 0 auto;min-height:clamp(66px,9dvh,85px);gap:4px}
+#player .controls .icon{min-width:42px;min-height:46px;font-size:24px}
+#player .controls .big{height:clamp(64px,8dvh,78px);width:clamp(64px,8dvh,78px);font-size:30px}
+#player .player-spacer{flex:1 1 auto;min-height:14px}
+#player .vol-track{height:4px;background:#40515e;border-radius:9px;flex:1;overflow:hidden}
+#player .vol-level{display:block;width:45%;height:100%;background:#b4c5cd;border-radius:9px}
+#player .player-bottom{margin:clamp(15px,2.6dvh,26px) 0 0;flex:0 0 auto;justify-content:space-around}
+#player .player-bottom button{min-width:100px;min-height:54px;gap:5px}
+#player .player-bottom span{font-size:22px}
+#mini{translate:0 var(--mini-drag,0px);touch-action:pan-y}
+@media(max-height:740px){#player .sheet-inner{padding-bottom:calc(var(--player-safe-bottom) + 10px)}#player .sheet-head{flex-basis:35px;margin-bottom:7px}#player .cover.large{width:min(74vw,340px,calc(100dvh - var(--player-safe-top) - var(--player-safe-bottom) - 330px))}#player .player-title{margin-bottom:9px}#player .times{margin-bottom:7px}#player .player-spacer{min-height:5px}#player .player-bottom{margin-top:9px}}
+@media(min-width:800px){#player.sheet.open{display:flex;justify-content:center;align-items:center;background:#03070cdd}#player .sheet-inner{height:min(92dvh,850px);width:min(520px,90vw);max-height:92dvh;padding:22px 32px 24px;background:#111a25;border-radius:24px}#player .cover.large{width:min(32dvh,290px)}}
+@media(prefers-reduced-motion:reduce){#player.sheet.settling{transition-duration:.01ms}}
+</style></head><body><main class="shell"><div class="top"><div class="brand">PureMusic<small>by Ho Tan · Hi-Fi Cloud Player</small></div><button class="icon" id="searchFocus" aria-label="Tìm kiếm">⌕</button></div><div id="content"></div></main><div class="mini" id="mini"><img id="miniCover" class="cover" alt=""><button class="main" id="miniOpen"><strong id="miniTitle"></strong><small id="miniArtist"></small></button><button class="icon" id="miniToggle" aria-label="Phát hoặc tạm dừng">▶</button></div><nav class="nav" id="nav"><button data-page="library" class="active"><span>♫</span>Thư viện</button><button data-page="lab"><span>≋</span>Audio Lab</button><button data-page="settings"><span>⚙</span>Cài đặt</button></nav><section class="sheet" id="player" aria-label="Trình phát"><div class="sheet-inner"><div class="sheet-head" id="playerDragZone"><span class="sheet-handle" id="playerHandle" aria-label="Vuốt xuống để thu nhỏ"></span><strong id="playerSource">ĐANG PHÁT</strong><button class="icon" id="playerMore" aria-label="Tùy chọn">⋯</button></div><div class="player-art"><img class="cover large" id="art" alt="Ảnh bìa"></div><div class="player-title"><div><h2 id="title"></h2><p id="artist"></p><span class="badge" id="quality"></span></div><button class="icon" id="like" aria-label="Yêu thích">♡</button></div><input class="seek" type="range" min="0" max="1000" value="0" id="seek" aria-label="Vị trí bài hát"><div class="times"><span id="elapsed">0:00</span><span id="remaining">-0:00</span></div><div class="controls"><button class="icon" id="shuffle" aria-label="Ngẫu nhiên">⤨</button><button class="icon" id="previous" aria-label="Bài trước">|◀</button><button class="big" id="toggle" aria-label="Phát hoặc tạm dừng">▶</button><button class="icon" id="next" aria-label="Bài tiếp">▶|</button><button class="icon" id="repeat" aria-label="Lặp lại">↻</button></div><div class="player-spacer" aria-hidden="true"></div><div class="player-bottom"><button id="lyricsBtn"><span>▤</span>Lời bài hát</button><button id="queueBtn"><span>☷</span>Hàng chờ</button></div></div></section><section class="sheet" id="subsheet"><div class="sheet-inner"><div class="sheet-head"><button class="icon" id="subBack">‹</button><strong id="subTitle"></strong><span style="width:42px"></span></div><div id="subContent"></div></div></section><div class="menu" id="menu"><div class="menu-content" id="menuItems"></div></div><div class="notice" id="toast" role="status"></div><audio id="audio" playsinline preload="metadata"></audio><script>
 'use strict';
 const VERSION='11.2.0',GOOGLE_ID='307536159983-k3glcvth89sf8u420rmc907ngm6fhsc4.apps.googleusercontent.com';
 const $=id=>document.getElementById(id), audio=$('audio');
@@ -75,7 +108,77 @@ async function playPosition(i,{resumeAt=0}={}){if(i<0||i>=state.queue.length)ret
 function next(){if(!state.queue.length)return;if(state.shuffle&&state.queue.length>1){let n=Math.floor(Math.random()*(state.queue.length-1));if(n>=state.position)n++;playPosition(n);return}const n=state.position+1;if(n<state.queue.length)playPosition(n);else if(state.repeat===1)playPosition(0);else{audio.pause();syncPlayer()}}
 function previous(){if(audio.currentTime>3){audio.currentTime=0;return}const n=state.position-1;if(n>=0)playPosition(n);else if(state.repeat===1)playPosition(state.queue.length-1)}
 function toggle(){if(!selected())return;if(audio.paused){if(!audio.src)playPosition(state.position);else audio.play().catch(e=>notify(e.message))}else audio.pause()}
-$('next').onclick=next;$('previous').onclick=previous;$('toggle').onclick=toggle;$('miniToggle').onclick=toggle;$('miniOpen').onclick=()=>{if(!selected())return;$('player').classList.add('open');syncPlayer()};$('closePlayer').onclick=()=>$('player').classList.remove('open');$('queueBtn').onclick=queueView;$('shuffle').onclick=()=>{state.shuffle=!state.shuffle;save('pm11_shuffle',state.shuffle);syncPlayer()};$('repeat').onclick=()=>{state.repeat=(state.repeat+1)%3;save('pm11_repeat',state.repeat);syncPlayer()};$('like').onclick=()=>{const s=selected();if(s)toggleFavorite(s)};$('lyricsBtn').onclick=showLyrics;$('playerMore').onclick=()=>{const s=selected();if(s)trackMenu(s)};
+// V11.3: single-sheet gesture controller; no duplicate playback listeners.
+const playerSheet=$('player');
+let gesture=null;
+function openPlayerSheet(){
+  if(!selected())return;
+  playerSheet.classList.add('open');
+  playerSheet.classList.remove('settling');
+  playerSheet.style.removeProperty('--drag-y');
+  document.body.classList.add('player-visible');
+  syncPlayer();
+}
+function closePlayerSheet(){
+  if(!playerSheet.classList.contains('open'))return;
+  playerSheet.classList.add('settling');
+  playerSheet.style.setProperty('--drag-y','100dvh');
+  const finish=()=>{
+    playerSheet.classList.remove('open','settling');
+    playerSheet.style.removeProperty('--drag-y');
+    document.body.classList.remove('player-visible');
+  };
+  let completed=false;
+  const once=()=>{if(completed)return;completed=true;finish()};
+  playerSheet.addEventListener('transitionend',function ended(e){
+    if(e.target!==playerSheet||e.propertyName!=='transform')return;
+    playerSheet.removeEventListener('transitionend',ended);once();
+  });
+  // In reduced-motion mode transitionend may not fire.
+  window.setTimeout(once,350);
+}
+function bindSheetDrag(el,kind){
+  el.addEventListener('pointerdown',e=>{
+    if(e.button!==0 || (kind==='player'&&!playerSheet.classList.contains('open')))return;
+    if(kind==='mini'&&!selected())return;
+    if(e.target.closest('button,input,select,a'))return;
+    gesture={kind,id:e.pointerId,startY:e.clientY,lastY:e.clientY,startT:performance.now(),dragged:false};
+    try{el.setPointerCapture(e.pointerId)}catch{}
+    if(kind==='player')playerSheet.classList.remove('settling');
+  });
+  el.addEventListener('pointermove',e=>{
+    if(!gesture||gesture.id!==e.pointerId||gesture.kind!==kind)return;
+    gesture.lastY=e.clientY;
+    const delta=e.clientY-gesture.startY;
+    if(kind==='player'){
+      if(delta>5){gesture.dragged=true;playerSheet.style.setProperty('--drag-y',Math.min(delta,window.innerHeight)+'px')}
+    }else if(delta< -8){gesture.dragged=true;$('mini').style.setProperty('--mini-drag',Math.max(delta,-100)+'px')}
+  });
+  function end(e){
+    if(!gesture||gesture.id!==e.pointerId||gesture.kind!==kind)return;
+    const g=gesture;gesture=null;
+    const d=e.clientY-g.startY, speed=d/Math.max(performance.now()-g.startT,1);
+    if(kind==='player'){
+      if(d>105||(d>35&&speed>.55))closePlayerSheet();
+      else {playerSheet.classList.add('settling');playerSheet.style.setProperty('--drag-y','0px');}
+    }else{
+      $('mini').style.removeProperty('--mini-drag');
+      if(d< -65||(d< -30&&speed<-.55))openPlayerSheet();
+    }
+  }
+  el.addEventListener('pointerup',end);
+  el.addEventListener('pointercancel',e=>{
+    if(gesture?.id!==e.pointerId)return;
+    gesture=null;
+    if(kind==='player'){playerSheet.classList.add('settling');playerSheet.style.setProperty('--drag-y','0px')}
+    else $('mini').style.removeProperty('--mini-drag');
+  });
+}
+bindSheetDrag($('playerDragZone'),'player');
+bindSheetDrag($('mini'),'mini');
+// Drag down on cover as well, without interfering with seek/queue/lyrics scrolling.
+bindSheetDrag(document.querySelector('.player-art'),'player');
+$('next').onclick=next;$('previous').onclick=previous;$('toggle').onclick=toggle;$('miniToggle').onclick=toggle;$('miniOpen').onclick=()=>{if(!selected())return;openPlayerSheet()};$('queueBtn').onclick=queueView;$('shuffle').onclick=()=>{state.shuffle=!state.shuffle;save('pm11_shuffle',state.shuffle);syncPlayer()};$('repeat').onclick=()=>{state.repeat=(state.repeat+1)%3;save('pm11_repeat',state.repeat);syncPlayer()};$('like').onclick=()=>{const s=selected();if(s)toggleFavorite(s)};$('lyricsBtn').onclick=showLyrics;$('playerMore').onclick=()=>{const s=selected();if(s)trackMenu(s)};
 $('seek').oninput=e=>{if(Number.isFinite(audio.duration)&&audio.duration>0)audio.currentTime=audio.duration*Number(e.target.value)/1000};audio.addEventListener('timeupdate',()=>{syncTime();if(Math.floor(audio.currentTime)%5===0)persistQueue()});audio.addEventListener('play',syncPlayer);audio.addEventListener('pause',syncPlayer);audio.addEventListener('ended',()=>{if(state.repeat===2){audio.currentTime=0;audio.play().catch(()=>{})}else next()});
 function base64url(bytes){return btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}
 async function pkce(){const verifier=base64url(crypto.getRandomValues(new Uint8Array(32))),digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier));return {verifier,challenge:base64url(new Uint8Array(digest))}}

@@ -1,9 +1,7 @@
-# PureMusic V11.2.0 – Searchable Queue
+PureMusic V11.3.0 — Balanced Player & Swipe Down
 
-- Hàng chờ có ô tìm kiếm theo tên bài, nghệ sĩ, album, không dấu tiếng Việt.
-- Tìm kiếm toàn bộ hàng chờ kể cả 1000+ bài.
-- Chỉ dựng các dòng đang hiển thị (virtual scrolling) để giảm giật khi cuộn.
-- Nút Đang phát nhảy tới bài hiện tại.
-- Chạm tên bài phát ngay; menu và kéo sắp xếp giữ nguyên.
-- Không đổi bộ phát FLAC, Google Drive, OneDrive, offline hay Audio Lab.
-- Đã kiểm tra cú pháp JS; chưa kiểm thử Safari iPhone thực tế.
+- Bố cục trình phát thích ứng 100dvh và safe area, ảnh bìa không che thông tin.
+- Vuốt xuống trên thanh kéo/ảnh bìa để thu nhỏ; vuốt lên từ Mini Player để mở lại.
+- Hàng chờ và Lyrics cuộn độc lập; không sửa engine FLAC/MP3, OAuth, thư viện hay offline.
+- Không thêm thanh âm lượng giả vì iOS không cho PWA chỉnh âm lượng hệ thống.
+- Cần kiểm thử cảm ứng thực tế trên Safari iPhone trước khi phát hành ổn định.
