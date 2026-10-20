@@ -1,17 +1,10 @@
-# PureMusic V11.5.0 · Minimal UX Audit
-by Ho Tan
+# PureMusic 11.6.0 – Smart Google Reconnect
 
-## Đã thay đổi
-- Bỏ nút tìm kiếm trùng lặp ở góc trên.
-- Tìm kiếm tức thì: kết quả xuất hiện ngay dưới ô nhập, ẩn toàn bộ thẻ danh mục và bộ lọc khi đang tìm.
-- Tìm theo tên bài, nghệ sĩ, album và tên tệp, hỗ trợ tiếng Việt không dấu.
-- Có nút xóa từ khóa, số lượng kết quả, phát ngay khi chạm bài.
-- Giảm chiều cao nội dung Thư viện: không dựng 250 bài dưới các thẻ danh mục khi chưa tìm. Truy cập danh sách đầy đủ qua ô Bài hát.
-- Căn lại các thẻ thư viện và giảm đường viền, bóng đổ.
-- Đồng bộ phiên bản 11.5.0 và cache service worker.
-
-## Giữ nguyên
-OAuth Google Drive/OneDrive, chọn thư mục, thư viện, FLAC/WAV/MP3, hàng chờ, offline, Audio Lab, lyrics, hẹn giờ và cơ chế phát nhạc hiện có.
-
-## Kiểm thử cần thực hiện trên iPhone
-Tìm kiếm bằng tên nghệ sĩ có/không dấu; chạm phát từ kết quả; xóa tìm kiếm; chuyển tab; tải offline; chuyển bài khi khóa màn hình. Không bảo đảm khắc phục giới hạn chạy nền của Safari iOS.
+- Chỉ hiển thị Google Drive; OneDrive tạm ẩn. Không xóa dữ liệu nhạc offline hay cấu hình OneDrive cũ.
+- Mỗi lần mở: kiểm tra access token đang lưu trong phiên trình duyệt và thời hạn; nếu hợp lệ tự sử dụng.
+- Nếu token hết hạn và từng kết nối, hiện nút **Tiếp tục với Google** trong Thư viện. iOS yêu cầu người dùng chạm để mở OAuth.
+- Thư viện đã cache và nhạc offline vẫn mở được khi mất mạng.
+- Chỉ tự quét thư mục đã chọn khi cần (cách lần quét gần nhất trên 15 phút).
+- Không tự động gia hạn token Google sau khi Safari đóng phiên; Google Identity Services không bảo đảm silent OAuth trên iOS.
+- Giữ nguyên bộ phát, hàng chờ, FLAC, playlist, EQ, Lyrics và offline của 11.5.
+- Cần kiểm thử thực tế OAuth và phát nhạc trên iPhone.
