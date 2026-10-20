@@ -1,4 +1,4 @@
-# PureMusic 11.6.0 – Smart Google Reconnect
+# PureMusic 11.7.0 – Smart Google Reconnect
 
 - Chỉ hiển thị Google Drive; OneDrive tạm ẩn. Không xóa dữ liệu nhạc offline hay cấu hình OneDrive cũ.
 - Mỗi lần mở: kiểm tra access token đang lưu trong phiên trình duyệt và thời hạn; nếu hợp lệ tự sử dụng.
