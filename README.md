@@ -1,19 +1,10 @@
-# PureMusic 12.0.0 — Essential Hi-Fi
-by Ho Tan
+PureMusic V12.2.0 - Smart Connect | by Ho Tan
 
-Bản nâng cấp kiểm soát từ V11.7, không thay đổi cấu trúc lưu trữ của người dùng.
-
-## Đã triển khai
-- Chuẩn hóa giao diện Album, danh sách bài hát, menu, trình phát, Mini Player.
-- Tối ưu tương phản, vùng chạm và chiều cao màn hình iPhone.
-- Giữ Google Drive, chọn thư mục, tìm kiếm, hàng chờ, offline, playlist, Lyrics, Audio Lab.
-- Đồng bộ phiên bản 12.0.0 và Service Worker.
-- Giảm tải trước trên kết nối tiết kiệm dữ liệu/2G.
-
-## Chưa thể bảo đảm
-- Tự chuyển bài khi Safari iOS bị treo JavaScript nền; giới hạn nền tảng PWA.
-- Bit-perfect, DSD/DoP, Cast Google Home mini và OneDrive chưa được hỗ trợ đầy đủ.
-- Chưa kiểm thử trực tiếp trên thiết bị iPhone.
-
-## Triển khai
-Upload toàn bộ 8 file vào GitHub Pages. Sao lưu phiên bản cũ trước. Không xóa IndexedDB nếu muốn giữ nhạc offline.
+- Kiem tra phien Google Drive khi mo ung dung va khi quay lai app.
+- Neu can dang nhap, hien bang ket noi gon ngay trong Thu vien; khong can vao Cai dat.
+- Nut Tiep tuc voi Google chi mo OAuth sau khi nguoi dung cham, phu hop gioi han popup Safari.
+- De sau an bang trong phien mo app, khong xoa thu vien/nhac offline.
+- Offline khong hien yeu cau dang nhap. Dang nhap thanh cong an bang, quet neu da chon thu muc.
+- Google OAuth token van co the het han; khong bao dam silent refresh tren iOS.
+- Audio engine, hang cho, Audio Lab giu nguyen tu V12.1.
+- Chua kiem thu tren iPhone thuc te.
